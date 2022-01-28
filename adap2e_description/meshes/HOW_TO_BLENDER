@@ -1,0 +1,29 @@
+How to decimate number of faces with blender (i.e. size of the file)
+
+- Info
+  - File
+    - Import -> stl
+
+- Properties
+  - Modifiers
+    - Add Modifier -> Decimate
+      - Collapse
+        - Ratio -> 0.4
+    - Add Modifier -> Decimate
+      - Planar
+        - Angle Limit -> 5degree
+  - Change color if wanted
+
+- Info
+  - File
+    - Export -> dae
+
+
+Remove meshes from an object
+
+https://blender.stackexchange.com/questions/28466/how-to-cut-and-paste-part-of-a-mesh-to-another-mesh
+
+
+Center the object on his geomtry
+
+https://blender.stackexchange.com/questions/14294/how-to-recenter-an-objects-origin

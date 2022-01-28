@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find romea_odo_description)/launch/display.launch">
+    <arg name="urdf_path" value="$(find alpo_description)/urdf/alpo_fat.urdf.xacro"/>
+  </include>
+</launch>

@@ -1,0 +1,10 @@
+maximal_wheel_speed: 2.
+maximal_wheel_acceleration: 1.
+maximal_wheel_angle: 0.48450
+maximal_wheel_angular_speed: 0.349065
+maximal_emergency_stop_deceleration: 1.
+command_delay: 0.
+front_steering_offset: 0
+rear_steering_offset: 0
+body_reference_x: -0.69
+z_inertial_moment: 239
