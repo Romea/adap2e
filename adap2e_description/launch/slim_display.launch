@@ -1,5 +1,0 @@
-<launch>
-  <include file="$(find romea_odo_description)/launch/display.launch">
-    <arg name="urdf_path" value="$(find adap2e_description)/urdf/adap2e_slim.urdf.xacro"/>
-  </include>
-</launch>

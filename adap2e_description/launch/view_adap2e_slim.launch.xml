@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find-pkg-share romea_odo_description)/launch/view_robot.launch.xml">
+    <arg name="urdf_file" value="$(find-pkg-share adap2e_description)/urdf/adap2e_slim.urdf.xacro"/>
+  </include>
+</launch>
