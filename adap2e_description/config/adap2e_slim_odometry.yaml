@@ -1,6 +1,0 @@
-rate: 10
-wheel_speed_std: 0.1
-wheel_speed_resolution: 0.1
-wheel_angle_std: 0.017453
-wheel_angle_resolution: 0.017453
-frame: 4WS4WD

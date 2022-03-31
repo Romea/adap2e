@@ -12,11 +12,12 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>ada2e_base</exec_depend>
+  <!-- <exec_depend>adap2e_hardware</exec_depend> -->
+  <exec_depend>adap2e_bringup</exec_depend>
+  <exec_depend>adap2e_description</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
   </export>
 
 </package>
-
