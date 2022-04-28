@@ -96,7 +96,9 @@
 
       </xacro:chassis>
 
-     <xacro:base_control mode="${mode}"/>
+     <xacro:if value="${mode == 'simulation' or mode == 'live'}">
+        <xacro:base_control mode="${mode}"/>
+     </xacro:if>
 
   </xacro:macro>
 
