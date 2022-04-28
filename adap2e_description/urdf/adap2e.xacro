@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="adap2e" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:macro name="adap2e" params="model use_sim prefix">
+    <xacro:macro name="adap2e" params="model mode prefix">
 
       <xacro:include filename="$(find romea_mobile_base_description)/urdf/4WS_4WD_chassis.xacro" />
       <xacro:include filename="$(find romea_mobile_base_description)/ros2_control/4WS_4WD.ros2_control.xacro"/>
@@ -71,6 +71,10 @@
       <xacro:property name="rear_wheel_y_offset" value="${props['geometry']['rear_axle']['wheels']['hub_carrier_offset']}" />
       <xacro:property name="chassis_height" value="${min(front_wheel_radius,rear_wheel_radius)}" />
 
+      <!-- Ros2 control hardware plugin -->
+      <xacro:property name="simulation_hardware_plugin" value="romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD"/>
+      <xacro:property name="live_hardware_plugin" value="adap2e_hardware/Adap2eHardware"/>
+
       <!-- visual chassis -->
       <xacro:chassis>
 
@@ -92,7 +96,7 @@
 
       </xacro:chassis>
 
-     <xacro:base_control use_sim="${use_sim}"/>
+     <xacro:base_control mode="${mode}"/>
 
   </xacro:macro>
 

@@ -2,11 +2,11 @@
 <robot name="adap2e_fat" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:arg name="prefix" default="" />
-  <xacro:arg name="use_sim" default="true" />
+  <xacro:arg name="mode" default="simulation" />
   <xacro:arg name="controller_conf_yaml_file" default=""/>
 
   <xacro:include filename="$(find adap2e_description)/urdf/adap2e.xacro" />
-  <xacro:adap2e model="fat" use_sim="$(arg use_sim)" prefix="$(arg prefix)"/>
+  <xacro:adap2e model="fat" mode="$(arg mode)" prefix="$(arg prefix)"/>
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
