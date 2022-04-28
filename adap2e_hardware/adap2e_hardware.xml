@@ -1,0 +1,9 @@
+<library path="adap2e_hardware">
+  <class name="adap2e_hardware/Adap2eHardware"
+         type="romea::Adap2eHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Adap2e hardware interface
+    </description>
+  </class>
+</library>
