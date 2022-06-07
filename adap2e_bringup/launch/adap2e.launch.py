@@ -183,7 +183,7 @@ def launch_setup(context, *args, **kwargs):
                     [
                         FindPackageShare("romea_teleop"),
                         "launch",
-                        "teleop_4WS4WD.launch.py",
+                        "four_wheel_steering_teleop.launch.py",
                     ]
                 )
             ]
