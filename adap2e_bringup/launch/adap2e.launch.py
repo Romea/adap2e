@@ -21,7 +21,7 @@ from launch.substitutions import (
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node, SetParameter, PushRosNamespace
 
 from launch_ros.substitutions import FindPackageShare
 
@@ -81,8 +81,6 @@ def launch_setup(context, *args, **kwargs):
         + ".urdf.xacro"
     )
 
-    full_base_controller_yaml_file = "/tmp/mobile_base_controller.yaml"
-
     command_message_type = "romea_mobile_base_msgs/TwoAxleSteeringCommand"
     command_message_priority = 100
 
@@ -120,7 +118,6 @@ def launch_setup(context, *args, **kwargs):
         executable="robot_state_publisher",
         output="screen",
         parameters=[robot_description],
-        namespace=robot_namespace,
     )
 
     spawn_entity = Node(
@@ -136,7 +133,6 @@ def launch_setup(context, *args, **kwargs):
             robot_namespace,
         ],
         output="screen",
-        namespace=robot_namespace,
     )
 
     controller_manager = Node(
@@ -144,94 +140,70 @@ def launch_setup(context, *args, **kwargs):
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[robot_description, controller_manager_yaml_file],
-        namespace=robot_namespace,
         output="screen",
     )
 
-    joint_state_broadcaster = Node(
+
+    controller = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [
+                PathJoinSubstitution(
+                    [
+                        FindPackageShare("romea_mobile_base_controllers"),
+                        "launch",
+                        "mobile_base_controller.launch.py",
+                    ]
+                )
+            ]
+        ),
+        launch_arguments={
+            "joints_prefix" : joints_prefix,
+            "controller_name" : "mobile_base_controller",
+            "controller_manager_name" : controller_manager_name,
+            "base_description_yaml_filename" : base_description_yaml_file,
+            "base_controller_yaml_filename" : base_controller_yaml_file,
+        }.items(),
         condition=LaunchConfigurationNotEquals("mode", "replay"),
-        package="controller_manager",
-        executable="spawner.py",
-        arguments=["joint_state_broadcaster", "-c", controller_manager_name],
-        output="screen",
-        namespace=robot_namespace,
     )
 
-    with open(base_description_yaml_file, "r") as f:
-        base_description_root = yaml.load(f, Loader=yaml.FullLoader)
-        base_description_node = base_description_root["/**"]
-        base_description_ros_params = base_description_node["ros__parameters"]
-        base_info = base_description_ros_params["base_info"]
-
-    with open(base_controller_yaml_file, "r") as f:
-        base_controller_root = yaml.load(f, Loader=yaml.FullLoader)
-        base_controller_node = base_controller_root["/**"]
-        base_controller_ros_params = base_controller_node["ros__parameters"]
-        base_controller_ros_params["base_info"] = base_info
-        base_controller_ros_params["controller"]["joints_prefix"] = joints_prefix
-
-    with open(full_base_controller_yaml_file, "w") as f:
-        yaml.dump(base_controller_root, f)
-
-    mobile_base_controller = Node(
-        condition=LaunchConfigurationNotEquals("mode", "replay"),
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "mobile_base_controller",
-            "--param-file",
-            full_base_controller_yaml_file,
-            "--controller-manager",
-            controller_manager_name,
-        ],
-        output="screen",
-        namespace=robot_namespace,
-    )
 
     joy = Node(
         condition=LaunchConfigurationNotEquals("mode", "replay"),
         package="joy",
         executable="joy_node",
         name="joy",
-        namespace=robot_namespace,
         output="log",
     )
 
-    wheels_steering_control_info = base_info["wheels_steering_control"]
-    wheels_steering_command_info = wheels_steering_control_info["command"]
-    maximal_steering_angle = wheels_steering_command_info["maximal_angle"]
 
-    wheels_speed_control_info = base_info["wheels_speed_control"]
-    wheels_speed_command_info = wheels_speed_control_info["command"]
-    maximal_wheel_speed = wheels_speed_command_info["maximal_speed"]
-
-    teleop = Node(
-        package="romea_teleop",
-        executable="two_axle_steering_teleop_node",
-        name="teleop",
-        parameters=[
-            {"joystick.type": LaunchConfiguration("joystick_type")},
-            joystick_remapping_yaml_file,
-            {"cmd_output.type": command_message_type},
-            {"cmd_output.priority": command_message_priority},
-            {"cmd_range.maximal_linear_speed.slow_mode": 1.0},
-            {"cmd_range.maximal_linear_speed.turbo_mode": maximal_wheel_speed},
-            {"cmd_range.maximal_front_steering_angle": maximal_steering_angle},
-            {"cmd_range.maximal_rear_steering_angle": maximal_steering_angle},
-        ],
-        remappings=[("cmd_two_axle_steering", "~/cmd_two_axle_steering")],
-        namespace=robot_namespace,
-        output="screen",
+    teleop = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [
+                PathJoinSubstitution(
+                    [
+                        FindPackageShare("romea_teleop"),
+                        "launch",
+                        "teleop_4WS4WD.launch.py",
+                    ]
+                )
+            ]
+        ),
+        launch_arguments={
+            "joystick_type": joystick_type,
+            "output_message_type": command_message_type,
+            "output_message_priority": str(command_message_priority),
+            "base_description_yaml_filename": base_description_yaml_file,
+        }.items(),
     )
 
     cmd_mux = Node(
+        condition=LaunchConfigurationNotEquals("mode", "replay"),
         package="romea_cmd_mux",
         executable="cmd_mux_node",
         name="cmd_mux",
         parameters=[{"topics_type": command_message_type}],
         remappings=[("~/out", "cmd_two_axle_steering")],
         output="screen",
-        namespace=robot_namespace,
     )
 
     return [
@@ -239,11 +211,11 @@ def launch_setup(context, *args, **kwargs):
         GroupAction(
             actions=[
                 SetParameter(name="use_sim_time", value=use_sim_time),
+                PushRosNamespace(robot_namespace),
                 robot_state_publisher,
                 spawn_entity,
                 controller_manager,
-                joint_state_broadcaster,
-                mobile_base_controller,
+                controller,
                 joy,
                 teleop,
                 cmd_mux,

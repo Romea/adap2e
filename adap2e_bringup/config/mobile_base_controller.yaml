@@ -7,3 +7,8 @@
       enable_odom_tf: false
       publish_rate: 10.0
       timeout: 0.5
+      #      command_limits:
+      #        minimal_longitudinal_speed:
+      #        maximal_longitudinal_speed:
+      #        maximal_front_steering_angle:
+      #        maximal_rear_steering_angle:

@@ -10,7 +10,7 @@
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-           <parameters>$(arg controller_conf_yaml_file)</parameters>
+       <parameters>$(arg controller_conf_yaml_file)</parameters>
     </plugin>
   </gazebo>
 
