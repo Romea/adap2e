@@ -79,6 +79,11 @@ private:
 
   void stop_can_receiver_thread_();
 
+  void get_hardware_command_();
+
+  void set_hardware_state_();
+
+
 #ifndef NDEBUG
   void open_log_file_();
   void write_log_header_();
@@ -95,26 +100,27 @@ private:
   std::array<uint8_t,8> sended_frame_data_;
   std::array<uint8_t,8> received_frame_data_;
 
+
   float front_wheel_radius_;
   float rear_wheel_radius_;
 
-  std::atomic<float> front_left_wheel_angle_measure_;
-  std::atomic<float> front_right_wheel_angle_measure_;
-  std::atomic<float> rear_left_wheel_angle_measure_;
-  std::atomic<float> rear_right_wheel_angle_measure_;
-  std::atomic<float> front_left_wheel_speed_measure_;
-  std::atomic<float> front_right_wheel_speed_measure_;
-  std::atomic<float> rear_left_wheel_speed_measure_;
-  std::atomic<float> rear_right_wheel_speed_measure_;
+  std::atomic<float> front_left_wheel_steering_angle_measure_;
+  std::atomic<float> front_right_wheel_steering_angle_measure_;
+  std::atomic<float> rear_left_wheel_steering_angle_measure_;
+  std::atomic<float> rear_right_wheel_steering_angle_measure_;
+  std::atomic<float> front_left_wheel_linear_speed_measure_;
+  std::atomic<float> front_right_wheel_linear_speed_measure_;
+  std::atomic<float> rear_left_wheel_linear_speed_measure_;
+  std::atomic<float> rear_right_wheel_linear_speed_measure_;
 
-  float front_left_wheel_angle_command_;
-  float front_right_wheel_angle_command_;
-  float rear_left_wheel_angle_command_;
-  float rear_right_wheel_angle_command_;
-  float front_left_wheel_speed_command_;
-  float front_right_wheel_speed_command_;
-  float rear_left_wheel_speed_command_;
-  float rear_right_wheel_speed_command_;
+  float front_left_wheel_steering_angle_command_;
+  float front_right_wheel_steering_angle_command_;
+  float rear_left_wheel_steering_angle_command_;
+  float rear_right_wheel_steering_angle_command_;
+  float front_left_wheel_linear_speed_command_;
+  float front_right_wheel_linear_speed_command_;
+  float rear_left_wheel_linear_speed_command_;
+  float rear_right_wheel_linear_speed_command_;
 
 #ifndef NDEBUG
   std::fstream debug_file_;
