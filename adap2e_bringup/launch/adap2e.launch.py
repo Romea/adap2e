@@ -19,13 +19,17 @@ from launch.substitutions import (
     TextSubstitution,
     PythonExpression,
 )
+
+
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import Node, SetParameter, PushRosNamespace
 
-from launch_ros.substitutions import FindPackageShare
+from launch_ros.substitutions import FindPackageShare, FindPackagePrefix, ExecutableInPackage
 
 from ament_index_python.packages import get_package_share_directory
+
+import adap2e_bringup
 
 import yaml
 
@@ -37,6 +41,7 @@ def launch_setup(context, *args, **kwargs):
     robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
     joystick_type = LaunchConfiguration("joystick_type").perform(context)
     launch_gazebo = LaunchConfiguration("launch_gazebo").perform(context)
+    urdf_description = LaunchConfiguration("urdf_description").perform(context)
 
     if robot_namespace:
         robot_description_name = "/" + robot_namespace + "/robot_description"
@@ -74,12 +79,12 @@ def launch_setup(context, *args, **kwargs):
         + "/config/mobile_base_controller.yaml"
     )
 
-    xacro_file = (
-        get_package_share_directory("adap2e_description")
-        + "/urdf/adap2e_"
-        + robot_model
-        + ".urdf.xacro"
-    )
+#    xacro_file = (
+#        get_package_share_directory("adap2e_description")
+#        + "/urdf/adap2e_"
+#        + robot_model
+#        + ".urdf.xacro"
+#    )
 
     command_message_type = "romea_mobile_base_msgs/TwoAxleSteeringCommand"
     command_message_priority = 100
@@ -92,26 +97,28 @@ def launch_setup(context, *args, **kwargs):
                 )
             ]
         ),
-        launch_arguments={"verbose": "false"}.items(),
+        launch_arguments={"verbose": "true"}.items(),
         condition=IfCondition(str(launch_gazebo)),
     )
 
-    # Get URDF via xacro
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            xacro_file,
-            " prefix:=",
-            joints_prefix,
-            " mode:=",
-            mode,
-            " controller_conf_yaml_file:=",
-            controller_manager_yaml_file,
-        ]
-    )
+#     Get URDF via xacro
+#    robot_description_content = Command(
+#        [
+#            PathJoinSubstitution([FindExecutable(name="xacro")]),
+#            " ",
+#             xacro_file,
+#            " prefix:=",
+#            joints_prefix,
+#            " mode:=",
+#            mode,
+#            " controller_conf_yaml_file:=",
+#            controller_manager_yaml_file,
+#        ]
+#    )
 
-    robot_description = {"robot_description": robot_description_content}
+#    robot_description = {"robot_description": robot_description_content}
+
+    robot_description = {"robot_description": urdf_description}
 
     robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -143,7 +150,6 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-
     controller = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [
@@ -157,15 +163,14 @@ def launch_setup(context, *args, **kwargs):
             ]
         ),
         launch_arguments={
-            "joints_prefix" : joints_prefix,
-            "controller_name" : "mobile_base_controller",
-            "controller_manager_name" : controller_manager_name,
-            "base_description_yaml_filename" : base_description_yaml_file,
-            "base_controller_yaml_filename" : base_controller_yaml_file,
+            "joints_prefix": joints_prefix,
+            "controller_name": "mobile_base_controller",
+            "controller_manager_name": controller_manager_name,
+            "base_description_yaml_filename": base_description_yaml_file,
+            "base_controller_yaml_filename": base_controller_yaml_file,
         }.items(),
         condition=LaunchConfigurationNotEquals("mode", "replay"),
     )
-
 
     joy = Node(
         condition=LaunchConfigurationNotEquals("mode", "replay"),
@@ -174,7 +179,6 @@ def launch_setup(context, *args, **kwargs):
         name="joy",
         output="log",
     )
-
 
     teleop = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -202,7 +206,7 @@ def launch_setup(context, *args, **kwargs):
         executable="cmd_mux_node",
         name="cmd_mux",
         parameters=[{"topics_type": command_message_type}],
-        remappings=[("~/out", "cmd_two_axle_steering")],
+        remappings=[("~/out", "controller/cmd_two_axle_steering")],
         output="screen",
     )
 
@@ -242,6 +246,24 @@ def generate_launch_description():
 
     declared_arguments.append(
         DeclareLaunchArgument("launch_gazebo", default_value="True")
+    )
+
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "urdf_description",
+            default_value=Command(
+                [
+                    ExecutableInPackage("urdf_description.py","adap2e_bringup"),
+                    " robot_namespace:",
+                    LaunchConfiguration("robot_namespace"),
+                    " robot_model:",
+                    LaunchConfiguration("robot_model"),
+                    " mode:",
+                    LaunchConfiguration("mode"),
+                ]
+            ),
+        )
     )
 
     return LaunchDescription(
