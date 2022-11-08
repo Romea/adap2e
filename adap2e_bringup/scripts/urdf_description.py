@@ -14,6 +14,7 @@ if __name__ == "__main__":
   mode=parameters["mode"]
   robot_model=parameters["robot_model"]
 
+
   if not parameters["robot_namespace"] :
     prefix="";
   else:

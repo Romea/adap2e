@@ -20,18 +20,17 @@ from launch.substitutions import (
     PythonExpression,
 )
 
-
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import Node, SetParameter, PushRosNamespace
 
-from launch_ros.substitutions import FindPackageShare, FindPackagePrefix, ExecutableInPackage
+from launch_ros.substitutions import (
+    FindPackageShare,
+    FindPackagePrefix,
+    ExecutableInPackage,
+)
 
 from ament_index_python.packages import get_package_share_directory
-
-import adap2e_bringup
-
-import yaml
 
 
 def launch_setup(context, *args, **kwargs):
@@ -42,6 +41,8 @@ def launch_setup(context, *args, **kwargs):
     joystick_type = LaunchConfiguration("joystick_type").perform(context)
     launch_gazebo = LaunchConfiguration("launch_gazebo").perform(context)
     urdf_description = LaunchConfiguration("urdf_description").perform(context)
+
+    print("current_namespace",context.launch_configurations.get('ros_namespace', None))
 
     if robot_namespace:
         robot_description_name = "/" + robot_namespace + "/robot_description"
@@ -79,12 +80,12 @@ def launch_setup(context, *args, **kwargs):
         + "/config/mobile_base_controller.yaml"
     )
 
-#    xacro_file = (
-#        get_package_share_directory("adap2e_description")
-#        + "/urdf/adap2e_"
-#        + robot_model
-#        + ".urdf.xacro"
-#    )
+    #    xacro_file = (
+    #        get_package_share_directory("adap2e_description")
+    #        + "/urdf/adap2e_"
+    #        + robot_model
+    #        + ".urdf.xacro"
+    #    )
 
     command_message_type = "romea_mobile_base_msgs/TwoAxleSteeringCommand"
     command_message_priority = 100
@@ -101,22 +102,22 @@ def launch_setup(context, *args, **kwargs):
         condition=IfCondition(str(launch_gazebo)),
     )
 
-#     Get URDF via xacro
-#    robot_description_content = Command(
-#        [
-#            PathJoinSubstitution([FindExecutable(name="xacro")]),
-#            " ",
-#             xacro_file,
-#            " prefix:=",
-#            joints_prefix,
-#            " mode:=",
-#            mode,
-#            " controller_conf_yaml_file:=",
-#            controller_manager_yaml_file,
-#        ]
-#    )
+    #     Get URDF via xacro
+    #    robot_description_content = Command(
+    #        [
+    #            PathJoinSubstitution([FindExecutable(name="xacro")]),
+    #            " ",
+    #             xacro_file,
+    #            " prefix:=",
+    #            joints_prefix,
+    #            " mode:=",
+    #            mode,
+    #            " controller_conf_yaml_file:=",
+    #            controller_manager_yaml_file,
+    #        ]
+    #    )
 
-#    robot_description = {"robot_description": robot_description_content}
+    #    robot_description = {"robot_description": robot_description_content}
 
     robot_description = {"robot_description": urdf_description}
 
@@ -232,39 +233,17 @@ def generate_launch_description():
 
     declared_arguments = []
 
-    declared_arguments.append(DeclareLaunchArgument("mode", default_value="simulation"))
+    declared_arguments.append(DeclareLaunchArgument("mode"))
 
-    declared_arguments.append(DeclareLaunchArgument("robot_model", default_value="fat"))
+    declared_arguments.append(DeclareLaunchArgument("robot_model"))
 
-    declared_arguments.append(
-        DeclareLaunchArgument("robot_namespace", default_value="adap2e")
-    )
+    declared_arguments.append(DeclareLaunchArgument("robot_namespace"))
 
-    declared_arguments.append(
-        DeclareLaunchArgument("joystick_type", default_value="xbox")
-    )
+    declared_arguments.append(DeclareLaunchArgument("joystick_type"))
 
-    declared_arguments.append(
-        DeclareLaunchArgument("launch_gazebo", default_value="True")
-    )
+    declared_arguments.append(DeclareLaunchArgument("launch_gazebo"))
 
-
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "urdf_description",
-            default_value=Command(
-                [
-                    ExecutableInPackage("urdf_description.py","adap2e_bringup"),
-                    " robot_namespace:",
-                    LaunchConfiguration("robot_namespace"),
-                    " robot_model:",
-                    LaunchConfiguration("robot_model"),
-                    " mode:",
-                    LaunchConfiguration("mode"),
-                ]
-            ),
-        )
-    )
+    declared_arguments.append(DeclareLaunchArgument("urdf_description"))
 
     return LaunchDescription(
         declared_arguments + [OpaqueFunction(function=launch_setup)]
