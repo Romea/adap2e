@@ -65,11 +65,12 @@ def generate_launch_description():
 
     urdf_description = Command(
         [
-            ExecutableInPackage("adap2e_fat_urdf_description.py", "adap2e_bringup"),
+            ExecutableInPackage("urdf_description.py", "adap2e_bringup"),
             " robot_namespace:",
             LaunchConfiguration("robot_namespace"),
             " mode:",
             LaunchConfiguration("mode"),
+            " robot_model:fat",
         ]
     )
 
