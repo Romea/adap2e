@@ -20,29 +20,6 @@ def launch_setup(context, *args, **kwargs):
     launch_gazebo = LaunchConfiguration("launch_gazebo").perform(context)
     urdf_description = LaunchConfiguration("urdf_description").perform(context)
 
-#    imu_description = Command(
-#        [
-#           ExecutableInPackage("urdf_description.py", "romea_imu_bringup"),
-#           " robot_namespace:",
-#           robot_namespace,
-#           " description_yaml_file:",
-#           "/home/jeanlaneurit/dev/romea_ros2/src/demos/imu.yaml",
-#        ]
-#    )
-
-
-#    gps_description = Command(
-#        [
-#           ExecutableInPackage("urdf_description.py", "romea_gps_bringup"),
-#           " robot_namespace:",
-#           robot_namespace,
-#           " description_yaml_file:",
-#           "/home/jeanlaneurit/dev/romea_ros2/src/demos/gps.yaml",
-#        ]
-#    )
-
-
-
     base = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [

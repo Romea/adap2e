@@ -80,13 +80,6 @@ def launch_setup(context, *args, **kwargs):
         + "/config/mobile_base_controller.yaml"
     )
 
-    #    xacro_file = (
-    #        get_package_share_directory("adap2e_description")
-    #        + "/urdf/adap2e_"
-    #        + robot_model
-    #        + ".urdf.xacro"
-    #    )
-
     command_message_type = "romea_mobile_base_msgs/TwoAxleSteeringCommand"
     command_message_priority = 100
 
@@ -101,23 +94,6 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={"verbose": "true"}.items(),
         condition=IfCondition(str(launch_gazebo)),
     )
-
-    #     Get URDF via xacro
-    #    robot_description_content = Command(
-    #        [
-    #            PathJoinSubstitution([FindExecutable(name="xacro")]),
-    #            " ",
-    #             xacro_file,
-    #            " prefix:=",
-    #            joints_prefix,
-    #            " mode:=",
-    #            mode,
-    #            " controller_conf_yaml_file:=",
-    #            controller_manager_yaml_file,
-    #        ]
-    #    )
-
-    #    robot_description = {"robot_description": robot_description_content}
 
     robot_description = {"robot_description": urdf_description}
 
