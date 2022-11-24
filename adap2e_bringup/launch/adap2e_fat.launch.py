@@ -17,7 +17,6 @@ def launch_setup(context, *args, **kwargs):
     mode = LaunchConfiguration("mode").perform(context)
     robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
     joystick_type = LaunchConfiguration("joystick_type").perform(context)
-    launch_gazebo = LaunchConfiguration("launch_gazebo").perform(context)
     urdf_description = LaunchConfiguration("urdf_description").perform(context)
 
     base = IncludeLaunchDescription(
@@ -37,7 +36,6 @@ def launch_setup(context, *args, **kwargs):
             "robot_namespace": robot_namespace,
             "robot_model": "fat",
             "joystick_type": joystick_type,
-            "launch_gazebo": launch_gazebo,
             "urdf_description": urdf_description,
         }.items(),
     )
@@ -57,10 +55,6 @@ def generate_launch_description():
 
     declared_arguments.append(
         DeclareLaunchArgument("joystick_type", default_value="xbox")
-    )
-
-    declared_arguments.append(
-        DeclareLaunchArgument("launch_gazebo", default_value="True")
     )
 
     urdf_description = Command(
