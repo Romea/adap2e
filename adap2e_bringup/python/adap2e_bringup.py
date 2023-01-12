@@ -1,7 +1,9 @@
-#!/usr/bin/env python3
+# Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+# Add license
 
 from ament_index_python.packages import get_package_share_directory
-import adap2e_description
+from adap2e_description import urdf
+
 
 def urdf_description(prefix, mode, model):
 
@@ -10,4 +12,4 @@ def urdf_description(prefix, mode, model):
         + "/config/controller_manager.yaml"
     )
 
-    return adap2e_description.urdf(prefix, mode, model, controller_manager_yaml_file)
+    return urdf(prefix, mode, model, controller_manager_yaml_file)

@@ -1,32 +1,48 @@
-#include "adap2e_hardware/adap2e_hardware.hpp"
+// Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+// Add license
+
+// romea
 #include <romea_mobile_base_hardware/hardware_info.hpp>
+
+// ros
 #include <rclcpp/rclcpp.hpp>
 
-namespace  {
-const double WHEEL_LINEAR_SPEED_EPSILON =0.01;
-const double WHEEL_STEERING_ANGLE_EPSILON =0.03;
+// std
+#include <fstream>
+#include <memory>
+#include <thread>
+#include <string>
+
+// local
+#include "adap2e_hardware/adap2e_hardware.hpp"
+
+namespace
+{
+const double WHEEL_LINEAR_SPEED_EPSILON = 0.01;
+const double WHEEL_STEERING_ANGLE_EPSILON = 0.03;
 
 const uint32_t FRONT_WHEEL_LINEAR_SPEEDS_COMMAND_ID = 0x15;
 const uint32_t REAR_WHEEL_LINEAR_SPEEDS_COMMAND_ID = 0x16;
 const uint32_t FRONT_WHEEL_STEERING_ANGLES_COMMAND_ID = 0x17;
 const uint32_t REAR_WHEEL_STEERING_ANGLES_COMMAND_ID = 0x18;
 
-const uint32_t FRONT_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID =  0x25;
+const uint32_t FRONT_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID = 0x25;
 const uint32_t REAR_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID = 0x23;
 const uint32_t FRONT_WHEEL_STEERING_ANGLES_MEASUREMENT_ID = 0x26;
 const uint32_t REAR_WHEEL_STEERING_ANGLES_MEASUREMENT_ID = 0x27;
 
 const uint32_t START_STOP_ID = 0x10;
 
-const  std::chrono::milliseconds TIMEOUT(5);
-}
+const std::chrono::milliseconds TIMEOUT(5);
+}  //  namespace
 
 
-namespace romea {
+namespace romea
+{
 
 //-----------------------------------------------------------------------------
-Adap2eHardware::Adap2eHardware():
-  HardwareSystemInterface4WS4WD(),
+Adap2eHardware::Adap2eHardware()
+: HardwareSystemInterface4WS4WD(),
   can_receiver_thread_(nullptr),
   can_receiver_thread_run_(false),
   can_sender_("can0"),
@@ -56,9 +72,7 @@ Adap2eHardware::Adap2eHardware():
   open_log_file_();
   write_log_header_();
 #endif
-
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -83,19 +97,16 @@ hardware_interface::return_type Adap2eHardware::disconnect_()
 
 //-----------------------------------------------------------------------------
 hardware_interface::return_type Adap2eHardware::load_info_(
-    const hardware_interface::HardwareInfo & hardware_info)
+  const hardware_interface::HardwareInfo & hardware_info)
 {
-
-  RCLCPP_ERROR_STREAM(rclcpp::get_logger("Adap2eHardware"),"load_info");
+  RCLCPP_ERROR_STREAM(rclcpp::get_logger("Adap2eHardware"), "load_info");
 
   try {
-    front_wheel_radius_=get_parameter<float>(hardware_info,"front_wheel_radius");
-    rear_wheel_radius_=get_parameter<float>(hardware_info,"rear_wheel_radius");
+    front_wheel_radius_ = get_parameter<float>(hardware_info, "front_wheel_radius");
+    rear_wheel_radius_ = get_parameter<float>(hardware_info, "rear_wheel_radius");
     return hardware_interface::return_type::OK;
-  }
-  catch (std::runtime_error &e)
-  {
-    RCLCPP_FATAL_STREAM(rclcpp::get_logger("HardwareSystemInterface"),e.what());
+  } catch (std::runtime_error & e) {
+    RCLCPP_FATAL_STREAM(rclcpp::get_logger("HardwareSystemInterface"), e.what());
     return hardware_interface::return_type::ERROR;
   }
 }
@@ -107,24 +118,23 @@ hardware_interface::return_type Adap2eHardware::read()
 
   set_hardware_state_();
 
-  std::cout << "wheels speeds "
-            << front_left_wheel_linear_speed_measure_.load() <<" "
-            << front_right_wheel_linear_speed_measure_.load() <<" "
-            << rear_left_wheel_linear_speed_measure_.load() <<" "
-            << rear_right_wheel_linear_speed_measure_.load() <<std::endl;
+  std::cout << "wheels speeds " <<
+    front_left_wheel_linear_speed_measure_.load() << " " <<
+    front_right_wheel_linear_speed_measure_.load() << " " <<
+    rear_left_wheel_linear_speed_measure_.load() << " " <<
+    rear_right_wheel_linear_speed_measure_.load() << std::endl;
 
-  std::cout << "wheels angless "
-            << front_left_wheel_steering_angle_measure_.load() <<" "
-            << front_right_wheel_steering_angle_measure_.load() <<" "
-            << rear_left_wheel_steering_angle_measure_.load() <<" "
-            << rear_right_wheel_steering_angle_measure_.load() <<std::endl;
+  std::cout << "wheels angless " <<
+    front_left_wheel_steering_angle_measure_.load() << " " <<
+    front_right_wheel_steering_angle_measure_.load() << " " <<
+    rear_left_wheel_steering_angle_measure_.load() << " " <<
+    rear_right_wheel_steering_angle_measure_.load() << std::endl;
 
 #ifndef NDEBUG
   write_log_data_();
 #endif
 
   return hardware_interface::return_type::OK;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -134,24 +144,21 @@ hardware_interface::return_type Adap2eHardware::write()
 
   get_hardware_command_();
 
-  if(is_drive_enable_())
-  {
-    std::cout << " send command "<< std::endl;
+  if (is_drive_enable_()) {
+    std::cout << " send command " << std::endl;
     send_command_();
 
-    std::cout << "wheels speeds command "
-              << front_left_wheel_linear_speed_command_ <<" "
-              << front_right_wheel_linear_speed_command_ <<" "
-              << rear_left_wheel_linear_speed_command_ <<" "
-              << rear_right_wheel_linear_speed_command_ <<std::endl;
+    std::cout << "wheels speeds command " <<
+      front_left_wheel_linear_speed_command_ << " " <<
+      front_right_wheel_linear_speed_command_ << " " <<
+      rear_left_wheel_linear_speed_command_ << " " <<
+      rear_right_wheel_linear_speed_command_ << std::endl;
 
-    std::cout << "wheels angless command "
-              << front_left_wheel_steering_angle_command_ <<" "
-              << front_right_wheel_steering_angle_command_ <<" "
-              << rear_left_wheel_steering_angle_command_ <<" "
-              << rear_right_wheel_steering_angle_command_ <<std::endl;
-
-
+    std::cout << "wheels angless command " <<
+      front_left_wheel_steering_angle_command_ << " " <<
+      front_right_wheel_steering_angle_command_ << " " <<
+      rear_left_wheel_steering_angle_command_ << " " <<
+      rear_right_wheel_steering_angle_command_ << std::endl;
   }
 
   return hardware_interface::return_type::OK;
@@ -168,13 +175,13 @@ void Adap2eHardware::set_hardware_state_()
   state.rearRightWheelSteeringAngle = rear_right_wheel_steering_angle_measure_;
 
   state.frontLeftWheelSpinningMotion.velocity =
-      front_left_wheel_linear_speed_measure_/front_wheel_radius_;
+    front_left_wheel_linear_speed_measure_ / front_wheel_radius_;
   state.frontRightWheelSpinningMotion.velocity =
-      front_right_wheel_linear_speed_measure_/front_wheel_radius_;
+    front_right_wheel_linear_speed_measure_ / front_wheel_radius_;
   state.rearLeftWheelSpinningMotion.velocity =
-      rear_left_wheel_linear_speed_measure_/rear_wheel_radius_;
+    rear_left_wheel_linear_speed_measure_ / rear_wheel_radius_;
   state.frontRightWheelSpinningMotion.velocity =
-      rear_right_wheel_linear_speed_measure_/rear_wheel_radius_;
+    rear_right_wheel_linear_speed_measure_ / rear_wheel_radius_;
 
   hardware_interface_->set_state(state);
 }
@@ -190,61 +197,57 @@ void Adap2eHardware::get_hardware_command_()
   rear_right_wheel_steering_angle_command_ = command.rearRightWheelSteeringAngle;
 
   front_left_wheel_linear_speed_command_ =
-      command.frontLeftWheelSpinningSetPoint*front_wheel_radius_;
+    command.frontLeftWheelSpinningSetPoint * front_wheel_radius_;
   front_right_wheel_linear_speed_command_ =
-      command.frontRightWheelSpinningSetPoint*front_wheel_radius_;
+    command.frontRightWheelSpinningSetPoint * front_wheel_radius_;
   rear_left_wheel_linear_speed_command_ =
-      command.rearLeftWheelSpinningSetPoint*rear_wheel_radius_;
+    command.rearLeftWheelSpinningSetPoint * rear_wheel_radius_;
   rear_right_wheel_linear_speed_command_ =
-      command.rearRightWheelSpinningSetPoint*rear_wheel_radius_;
+    command.rearRightWheelSpinningSetPoint * rear_wheel_radius_;
 }
 
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_command_()
 {
-  return (send_start_()&&// why send start at each command?
-          send_front_wheel_speeds_() &&
-          send_rear_wheel_speeds_() &&
-          send_front_wheel_angles_() &&
-          send_rear_wheel_angles_());
+  return send_start_() &&  // why send start at each command?
+         send_front_wheel_speeds_() &&
+         send_rear_wheel_speeds_() &&
+         send_front_wheel_angles_() &&
+         send_rear_wheel_angles_();
 }
 
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_null_command_()
 {
-  memset(sended_frame_data_.data(),0,8);
-  return (send_data_(FRONT_WHEEL_LINEAR_SPEEDS_COMMAND_ID) &&
-          send_data_(REAR_WHEEL_LINEAR_SPEEDS_COMMAND_ID) &&
-          send_data_(FRONT_WHEEL_STEERING_ANGLES_COMMAND_ID) &&
-          send_data_(REAR_WHEEL_STEERING_ANGLES_COMMAND_ID));
+  memset(sended_frame_data_.data(), 0, 8);
+  return send_data_(FRONT_WHEEL_LINEAR_SPEEDS_COMMAND_ID) &&
+         send_data_(REAR_WHEEL_LINEAR_SPEEDS_COMMAND_ID) &&
+         send_data_(FRONT_WHEEL_STEERING_ANGLES_COMMAND_ID) &&
+         send_data_(REAR_WHEEL_STEERING_ANGLES_COMMAND_ID);
 }
 
 //-----------------------------------------------------------------------------
 void Adap2eHardware::receive_data_()
 {
   while (rclcpp::ok() && can_receiver_thread_run_) {
-
     try {
-
       drivers::socketcan::CanId receive_id = can_receiver_.
-          receive(received_frame_data_.data(), TIMEOUT);
+        receive(received_frame_data_.data(), TIMEOUT);
 
-      switch (receive_id.identifier())
-      {
-      case FRONT_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID:
-        decode_front_wheel_speeds_();
-        break;
-      case REAR_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID:
-        decode_rear_wheel_speeds_();
-        break;
-      case FRONT_WHEEL_STEERING_ANGLES_MEASUREMENT_ID:
-        decode_front_wheel_angles_();
-        break;
-      case REAR_WHEEL_STEERING_ANGLES_MEASUREMENT_ID:
-        decode_rear_wheel_angles_();
-        break;
+      switch (receive_id.identifier()) {
+        case FRONT_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID:
+          decode_front_wheel_speeds_();
+          break;
+        case REAR_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID:
+          decode_rear_wheel_speeds_();
+          break;
+        case FRONT_WHEEL_STEERING_ANGLES_MEASUREMENT_ID:
+          decode_front_wheel_angles_();
+          break;
+        case REAR_WHEEL_STEERING_ANGLES_MEASUREMENT_ID:
+          decode_rear_wheel_angles_();
+          break;
       }
-
     } catch (const std::exception & ex) {
       RCLCPP_WARN_STREAM(rclcpp::get_logger("Adap2eHardware"), "Error receiving CAN message");
     }
@@ -252,31 +255,29 @@ void Adap2eHardware::receive_data_()
 }
 
 
-
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_data_(uint32_t id)
 {
   try {
-    drivers::socketcan::CanId can_id(id,0,8);
-    can_sender_.send(sended_frame_data_.data(),8,can_id,TIMEOUT);
+    drivers::socketcan::CanId can_id(id, 0, 8);
+    can_sender_.send(sended_frame_data_.data(), 8, can_id, TIMEOUT);
     return true;
-  }
-  catch (drivers::socketcan::SocketCanTimeout & e)
-  {
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("Adap2eHardware"),
-                        "Send can data" << std::hex << id << " : timeout");
-  }
-  catch (std::runtime_error & e)
-  {
-    RCLCPP_ERROR_STREAM(rclcpp::get_logger("Adap2eHardware"),
-                        "Send can data" << std::hex << id << " : " <<e.what());
+  } catch (drivers::socketcan::SocketCanTimeout & e) {
+    RCLCPP_ERROR_STREAM(
+      rclcpp::get_logger("Adap2eHardware"),
+      "Send can data" << std::hex << id << " : timeout");
+  } catch (std::runtime_error & e) {
+    RCLCPP_ERROR_STREAM(
+      rclcpp::get_logger("Adap2eHardware"),
+      "Send can data" << std::hex << id << " : " << e.what());
   }
   return false;
 }
 
 //-----------------------------------------------------------------------------
-void Adap2eHardware::encode_odo_data_(float left_data,
-                                      float right_data)
+void Adap2eHardware::encode_odo_data_(
+  float left_data,
+  float right_data)
 {
   std::memcpy(&sended_frame_data_[0], &left_data, sizeof(left_data));
   std::memcpy(&sended_frame_data_[4], &right_data, sizeof(right_data));
@@ -285,100 +286,110 @@ void Adap2eHardware::encode_odo_data_(float left_data,
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_front_wheel_speeds_()
 {
-  encode_odo_data_(front_left_wheel_linear_speed_command_,
-                   front_right_wheel_linear_speed_command_);
+  encode_odo_data_(
+    front_left_wheel_linear_speed_command_,
+    front_right_wheel_linear_speed_command_);
   return send_data_(FRONT_WHEEL_LINEAR_SPEEDS_COMMAND_ID);
 }
 
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_rear_wheel_speeds_()
 {
-  encode_odo_data_(rear_left_wheel_linear_speed_command_,
-                   rear_right_wheel_linear_speed_command_);
+  encode_odo_data_(
+    rear_left_wheel_linear_speed_command_,
+    rear_right_wheel_linear_speed_command_);
   return send_data_(REAR_WHEEL_LINEAR_SPEEDS_COMMAND_ID);
 }
 
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_front_wheel_angles_()
 {
-  encode_odo_data_(-front_left_wheel_steering_angle_command_,
-                   -front_right_wheel_steering_angle_command_);
+  encode_odo_data_(
+    -front_left_wheel_steering_angle_command_,
+    -front_right_wheel_steering_angle_command_);
   return send_data_(FRONT_WHEEL_STEERING_ANGLES_COMMAND_ID);
 }
 
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_rear_wheel_angles_()
 {
-  encode_odo_data_(-rear_left_wheel_steering_angle_command_,
-                   -rear_right_wheel_steering_angle_command_);
+  encode_odo_data_(
+    -rear_left_wheel_steering_angle_command_,
+    -rear_right_wheel_steering_angle_command_);
   return send_data_(REAR_WHEEL_STEERING_ANGLES_COMMAND_ID);
 }
 
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::send_start_()
 {
-  sended_frame_data_[0] = 2; // Demande départ mode autonome
-  sended_frame_data_[1] = 1; // 1=Boucle ouverte
+  sended_frame_data_[0] = 2;  // Demande départ mode autonome
+  sended_frame_data_[1] = 1;  // 1=Boucle ouverte
   return send_data_(START_STOP_ID);
 }
 
 //-----------------------------------------------------------------------------
-void Adap2eHardware::decode_odo_data_(std::atomic<float> & left_data,
-                                      std::atomic<float> & right_data)
+void Adap2eHardware::decode_odo_data_(
+  std::atomic<float> & left_data,
+  std::atomic<float> & right_data)
 {
-  left_data.store(reinterpret_cast<float*>(received_frame_data_.data())[0]);
-  right_data.store(reinterpret_cast<float*>(received_frame_data_.data())[1]);
+  left_data.store(reinterpret_cast<float *>(received_frame_data_.data())[0]);
+  right_data.store(reinterpret_cast<float *>(received_frame_data_.data())[1]);
 }
 
 //-----------------------------------------------------------------------------
 void Adap2eHardware::decode_front_wheel_speeds_()
 {
-  decode_odo_data_(front_left_wheel_linear_speed_measure_,
-                   front_right_wheel_linear_speed_measure_);
+  decode_odo_data_(
+    front_left_wheel_linear_speed_measure_,
+    front_right_wheel_linear_speed_measure_);
 
-  RCLCPP_ERROR_STREAM(rclcpp::get_logger("Adap2eHardware"),
-                      "ID = " << FRONT_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID
-                      <<" front speeds : left "<<front_left_wheel_linear_speed_measure_
-                      <<" , right "<<front_right_wheel_linear_speed_measure_);
-
+  RCLCPP_ERROR_STREAM(
+    rclcpp::get_logger("Adap2eHardware"),
+    "ID = " << FRONT_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID <<
+      " front speeds : left " << front_left_wheel_linear_speed_measure_ <<
+      " , right " << front_right_wheel_linear_speed_measure_);
 }
 
 //-----------------------------------------------------------------------------
 void Adap2eHardware::decode_rear_wheel_speeds_()
 {
-  decode_odo_data_(rear_left_wheel_linear_speed_measure_,
-                   rear_right_wheel_linear_speed_measure_);
+  decode_odo_data_(
+    rear_left_wheel_linear_speed_measure_,
+    rear_right_wheel_linear_speed_measure_);
 
-  RCLCPP_DEBUG_STREAM(rclcpp::get_logger("Adap2eHardware"),
-                      "ID = " << REAR_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID
-                      <<" rear speeds : left "<<rear_left_wheel_linear_speed_measure_
-                      <<" , right "<<rear_right_wheel_linear_speed_measure_);
-
+  RCLCPP_DEBUG_STREAM(
+    rclcpp::get_logger("Adap2eHardware"),
+    "ID = " << REAR_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID <<
+      " rear speeds : left " << rear_left_wheel_linear_speed_measure_ <<
+      " , right " << rear_right_wheel_linear_speed_measure_);
 }
 
 //-----------------------------------------------------------------------------
 void Adap2eHardware::decode_front_wheel_angles_()
 {
-  decode_odo_data_(front_left_wheel_steering_angle_measure_,
-                   front_right_wheel_steering_angle_measure_);
+  decode_odo_data_(
+    front_left_wheel_steering_angle_measure_,
+    front_right_wheel_steering_angle_measure_);
 
-  RCLCPP_DEBUG_STREAM(rclcpp::get_logger("Adap2eHardware"),
-                      "ID = " << FRONT_WHEEL_STEERING_ANGLES_MEASUREMENT_ID
-                      <<" front angles : left "<<front_left_wheel_steering_angle_measure_
-                      <<" , right "<<front_right_wheel_steering_angle_measure_);
+  RCLCPP_DEBUG_STREAM(
+    rclcpp::get_logger("Adap2eHardware"),
+    "ID = " << FRONT_WHEEL_STEERING_ANGLES_MEASUREMENT_ID <<
+      " front angles : left " << front_left_wheel_steering_angle_measure_ <<
+      " , right " << front_right_wheel_steering_angle_measure_);
 }
 
 //-----------------------------------------------------------------------------
 void Adap2eHardware::decode_rear_wheel_angles_()
 {
-  decode_odo_data_(rear_left_wheel_steering_angle_measure_,
-                   rear_right_wheel_steering_angle_measure_);
+  decode_odo_data_(
+    rear_left_wheel_steering_angle_measure_,
+    rear_right_wheel_steering_angle_measure_);
 
-  RCLCPP_DEBUG_STREAM(rclcpp::get_logger("Adap2eHardware"),
-                      "ID = " << REAR_WHEEL_STEERING_ANGLES_MEASUREMENT_ID
-                      <<" rear angles : left "<<rear_left_wheel_steering_angle_measure_
-                      <<" , right "<<rear_right_wheel_steering_angle_measure_);
-
+  RCLCPP_DEBUG_STREAM(
+    rclcpp::get_logger("Adap2eHardware"),
+    "ID = " << REAR_WHEEL_STEERING_ANGLES_MEASUREMENT_ID <<
+      " rear angles : left " << rear_left_wheel_steering_angle_measure_ <<
+      " , right " << rear_right_wheel_steering_angle_measure_);
 }
 
 //-----------------------------------------------------------------------------
@@ -391,9 +402,8 @@ void Adap2eHardware::start_can_receiver_thread_()
 //-----------------------------------------------------------------------------
 void Adap2eHardware::stop_can_receiver_thread_()
 {
-  can_receiver_thread_run_=false;
-  if (can_receiver_thread_->joinable())
-  {
+  can_receiver_thread_run_ = false;
+  if (can_receiver_thread_->joinable()) {
     can_receiver_thread_->join();
   }
 }
@@ -401,76 +411,82 @@ void Adap2eHardware::stop_can_receiver_thread_()
 //-----------------------------------------------------------------------------
 bool Adap2eHardware::is_drive_enable_()const
 {
-  float speed_measure = 0.25*(front_left_wheel_linear_speed_measure_+
-                              front_right_wheel_linear_speed_measure_+
-                              rear_left_wheel_linear_speed_measure_+
-                              rear_right_wheel_linear_speed_measure_);
+  float speed_measure = 0.25 * (front_left_wheel_linear_speed_measure_ +
+    front_right_wheel_linear_speed_measure_ +
+    rear_left_wheel_linear_speed_measure_ +
+    rear_right_wheel_linear_speed_measure_);
 
-  float speed_command = 0.25*(front_left_wheel_linear_speed_command_+
-                              front_right_wheel_linear_speed_command_+
-                              rear_left_wheel_linear_speed_command_+
-                              rear_right_wheel_linear_speed_command_);
+  float speed_command = 0.25 * (front_left_wheel_linear_speed_command_ +
+    front_right_wheel_linear_speed_command_ +
+    rear_left_wheel_linear_speed_command_ +
+    rear_right_wheel_linear_speed_command_);
 
-  return !(std::abs(front_left_wheel_steering_angle_measure_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(front_left_wheel_steering_angle_command_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(front_right_wheel_steering_angle_measure_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(front_right_wheel_steering_angle_command_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(rear_left_wheel_steering_angle_measure_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(rear_left_wheel_steering_angle_command_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(rear_right_wheel_steering_angle_measure_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(rear_right_wheel_steering_angle_command_)< WHEEL_STEERING_ANGLE_EPSILON &&
-           std::abs(speed_measure) < WHEEL_LINEAR_SPEED_EPSILON &&
-           std::abs(speed_command) < WHEEL_LINEAR_SPEED_EPSILON);
-
+  return !(std::abs(front_left_wheel_steering_angle_measure_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(front_left_wheel_steering_angle_command_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(front_right_wheel_steering_angle_measure_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(front_right_wheel_steering_angle_command_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(rear_left_wheel_steering_angle_measure_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(rear_left_wheel_steering_angle_command_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(rear_right_wheel_steering_angle_measure_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(rear_right_wheel_steering_angle_command_) < WHEEL_STEERING_ANGLE_EPSILON &&
+         std::abs(speed_measure) < WHEEL_LINEAR_SPEED_EPSILON &&
+         std::abs(speed_command) < WHEEL_LINEAR_SPEED_EPSILON);
 }
 
 #ifndef NDEBUG
 //-----------------------------------------------------------------------------
 void Adap2eHardware::open_log_file_()
 {
-  debug_file_.open(std::string("adap2e.dat").c_str(),
-                   std::fstream::in|std::fstream::out|std::fstream::trunc);
+  debug_file_.open(
+    std::string("adap2e.dat").c_str(),
+    std::fstream::in | std::fstream::out | std::fstream::trunc);
 }
 //-----------------------------------------------------------------------------
 void Adap2eHardware::write_log_header_()
 {
-  if(debug_file_.is_open())
-  {
-    debug_file_ <<"# time, ";
-    debug_file_ <<" FLS, "<<" FRS, ";
-    debug_file_ <<" RLS, "<<" RRS, ";
-    debug_file_ <<" FLA, "<<" FRA, ";
-    debug_file_ <<" RLA, "<<" RRA, ";
-    debug_file_ <<" FLS_cmd, "<<" FRS_cmd, ";
-    debug_file_ <<" RLS_cmd, "<<" RRS_cmd, ";
-    debug_file_ <<" FLA_cmd, "<<" FRA_cmd, ";
-    debug_file_ <<" RLA_cmd, "<<" RRA_cmd, "<<"\n";
+  if (debug_file_.is_open()) {
+    debug_file_ << "# time, ";
+    debug_file_ << " FLS, " << " FRS, ";
+    debug_file_ << " RLS, " << " RRS, ";
+    debug_file_ << " FLA, " << " FRA, ";
+    debug_file_ << " RLA, " << " RRA, ";
+    debug_file_ << " FLS_cmd, " << " FRS_cmd, ";
+    debug_file_ << " RLS_cmd, " << " RRS_cmd, ";
+    debug_file_ << " FLA_cmd, " << " FRA_cmd, ";
+    debug_file_ << " RLA_cmd, " << " RRA_cmd, " << "\n";
   }
 }
 
 //-----------------------------------------------------------------------------
 void Adap2eHardware::write_log_data_()
 {
-  if(debug_file_.is_open())
-  {
+  if (debug_file_.is_open()) {
     auto now = std::chrono::system_clock::now();
     auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
 
     debug_file_ << std::setprecision(10);
-    debug_file_ << now_ns.time_since_epoch().count()<<" ";
-    debug_file_ <<front_left_wheel_linear_speed_measure_<<" "<< front_right_wheel_linear_speed_measure_<<" ";
-    debug_file_ <<rear_left_wheel_linear_speed_measure_<<" "<< rear_right_wheel_linear_speed_measure_<<" ";
-    debug_file_ <<front_left_wheel_steering_angle_measure_<<" "<< front_right_wheel_steering_angle_measure_<<" ";
-    debug_file_ <<rear_left_wheel_steering_angle_measure_<<" "<< rear_right_wheel_steering_angle_measure_<<" ";
-    debug_file_ <<front_left_wheel_linear_speed_command_<<" "<< front_right_wheel_linear_speed_command_<<" ";
-    debug_file_ <<rear_left_wheel_linear_speed_command_<<" "<< rear_right_wheel_linear_speed_command_<<" ";
-    debug_file_ <<front_left_wheel_steering_angle_command_<<" "<< front_right_wheel_steering_angle_command_<<" ";
-    debug_file_ <<rear_left_wheel_steering_angle_command_<<" "<< rear_right_wheel_steering_angle_command_<<" \n";
+    debug_file_ << now_ns.time_since_epoch().count() << " ";
+    debug_file_ << front_left_wheel_linear_speed_measure_ << " " <<
+      front_right_wheel_linear_speed_measure_ << " ";
+    debug_file_ << rear_left_wheel_linear_speed_measure_ << " " <<
+      rear_right_wheel_linear_speed_measure_ << " ";
+    debug_file_ << front_left_wheel_steering_angle_measure_ << " " <<
+      front_right_wheel_steering_angle_measure_ << " ";
+    debug_file_ << rear_left_wheel_steering_angle_measure_ << " " <<
+      rear_right_wheel_steering_angle_measure_ << " ";
+    debug_file_ << front_left_wheel_linear_speed_command_ << " " <<
+      front_right_wheel_linear_speed_command_ << " ";
+    debug_file_ << rear_left_wheel_linear_speed_command_ << " " <<
+      rear_right_wheel_linear_speed_command_ << " ";
+    debug_file_ << front_left_wheel_steering_angle_command_ << " " <<
+      front_right_wheel_steering_angle_command_ << " ";
+    debug_file_ << rear_left_wheel_steering_angle_command_ << " " <<
+      rear_right_wheel_steering_angle_command_ << " \n";
   }
 }
 #endif
 
-}
+}  // namespace romea
 
 
 #include "pluginlib/class_list_macros.hpp"

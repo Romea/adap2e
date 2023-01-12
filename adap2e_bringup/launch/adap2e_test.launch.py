@@ -1,3 +1,6 @@
+# Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+# Add license
+
 from launch import LaunchDescription
 
 from launch.actions import (
@@ -40,7 +43,6 @@ def launch_setup(context, *args, **kwargs):
                 )
             )
         )
-
 
     actions.append(
         IncludeLaunchDescription(
@@ -105,7 +107,6 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
-
     return [GroupAction(actions)]
 
 
@@ -117,7 +118,9 @@ def generate_launch_description():
 
     declared_arguments.append(DeclareLaunchArgument("robot_model", default_value="fat"))
 
-    declared_arguments.append(DeclareLaunchArgument("joystick_type", default_value="xbox"))
+    declared_arguments.append(
+        DeclareLaunchArgument("joystick_type", default_value="xbox")
+    )
 
     declared_arguments.append(
         DeclareLaunchArgument("joystick_device", default_value="/dev/input/js0")

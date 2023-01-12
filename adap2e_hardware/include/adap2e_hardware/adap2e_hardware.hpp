@@ -1,11 +1,18 @@
-#ifndef ADAP2E_HARDWARE_HPP_
-#define ADAP2E_HARDWARE_HPP_
+// Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
+// Add license
 
-#include "romea_mobile_base_hardware/hardware_system_interface.hpp"
+#ifndef ADAP2E_HARDWARE__ADAP2E_HARDWARE_HPP_
+#define ADAP2E_HARDWARE__ADAP2E_HARDWARE_HPP_
+
+// ros
 #include <ros2_socketcan/socket_can_receiver.hpp>
 #include <ros2_socketcan/socket_can_sender.hpp>
 #include <rclcpp/macros.hpp>
 
+// romea
+#include <romea_mobile_base_hardware/hardware_system_interface.hpp>
+
+// std
 #include <array>
 #include <atomic>
 #include <memory>
@@ -16,33 +23,32 @@ namespace romea
 {
 
 class Adap2eHardware : public HardwareSystemInterface4WS4WD
-{  
-
+{
 public:
-
   RCLCPP_SHARED_PTR_DEFINITIONS(Adap2eHardware);
 
   Adap2eHardware();
 
-  virtual hardware_interface::return_type read() override;
+  hardware_interface::return_type read() override;
 
-  virtual hardware_interface::return_type write() override;
+  hardware_interface::return_type write() override;
 
 private:
+  hardware_interface::return_type connect_() override;
 
-  virtual hardware_interface::return_type connect_() override;
-
-  virtual hardware_interface::return_type disconnect_() override;
+  hardware_interface::return_type disconnect_() override;
 
   hardware_interface::return_type load_info_(
-      const hardware_interface::HardwareInfo & hardware_info) override ;
+    const hardware_interface::HardwareInfo & hardware_info) override;
 
 
-  void encode_odo_data_(float left_data,
-                        float right_data);
+  void encode_odo_data_(
+    float left_data,
+    float right_data);
 
-  void decode_odo_data_(std::atomic<float> & left_data,
-                        std::atomic<float> & right_data);
+  void decode_odo_data_(
+    std::atomic<float> & left_data,
+    std::atomic<float> & right_data);
 
 
   bool send_data_(uint32_t id);
@@ -91,14 +97,13 @@ private:
 #endif
 
 private:
-
   std::unique_ptr<std::thread> can_receiver_thread_;
-  std::atomic<bool> can_receiver_thread_run_;;
+  std::atomic<bool> can_receiver_thread_run_;
 
   drivers::socketcan::SocketCanSender can_sender_;
   drivers::socketcan::SocketCanReceiver can_receiver_;
-  std::array<uint8_t,8> sended_frame_data_;
-  std::array<uint8_t,8> received_frame_data_;
+  std::array<uint8_t, 8> sended_frame_data_;
+  std::array<uint8_t, 8> received_frame_data_;
 
 
   float front_wheel_radius_;
@@ -125,9 +130,8 @@ private:
 #ifndef NDEBUG
   std::fstream debug_file_;
 #endif
-
 };
 
-}
+}  // namespace romea
 
-#endif
+#endif  // ADAP2E_HARDWARE__ADAP2E_HARDWARE_HPP_
