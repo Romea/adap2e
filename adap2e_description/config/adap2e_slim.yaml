@@ -1,5 +1,5 @@
-kinematic: four_wheel_steering
-base_info:
+# kinematic: four_wheel_steering
+type: 4WS4WD
 geometry:
   axles_distance: 1.38
   front_axle:
