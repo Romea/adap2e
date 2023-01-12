@@ -29,11 +29,11 @@ def test_footprint_link_name():
 
 def test_hardware_plugin_name():
 
-    urdf_xml("live", "fat").find(
+    assert urdf_xml("live", "fat").find(
         "ros2_control/hardware/plugin"
     ).text == "adap2e_hardware/Adap2eHardware"
 
-    urdf_xml("simulation", "slim").find(
+    assert urdf_xml("simulation", "slim").find(
         "ros2_control/hardware/plugin"
     ).text == "romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD"
 
@@ -44,19 +44,3 @@ def test_controller_filename_name():
         == get_package_share_directory("adap2e_bringup")
         + "/config/controller_manager.yaml"
     )
-
-
-# def test_gps_name(urdf):
-#     assert urdf.find("link").get("name") == "robot_gps_link"
-
-
-# def test_gps_position(urdf):
-#     assert urdf.find("joint/origin").get("xyz") == "1.0 2.0 3.0"
-
-
-# def test_gps_parent_link(urdf):
-#     assert urdf.find("joint/parent").get("link") == "robot_base_link"
-
-
-# def test_gps_rate(urdf):
-#     assert urdf.find("gazebo/sensor/update_rate").text == "10"
