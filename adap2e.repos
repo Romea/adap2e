@@ -3,7 +3,7 @@ repositories:
     type: git
     url: git@gitlab-ssh.irstea.fr:romea_core/romea_common.git
     version: devel
-  romea_core/romea_gps:
+  romea_core/romea_mobile_base:
     type: git
     url: git@gitlab-ssh.irstea.fr:romea_core/romea_mobile_base.git
     version: devel
@@ -12,8 +12,12 @@ repositories:
     type: git
     url: git@gitlab-ssh.irstea.fr:romea_ros2/tools/romea_common.git
     version: main
-  romea_ros2/interfaces/sensors/romea_gps:
+  romea_ros2/interfaces/vehicles/romea_mobile_base:
     type: git
     url: git@gitlab-ssh.irstea.fr:romea_ros2/interfaces/vehicles/romea_mobile_base.git
+    version: main
+  romea_ros2/interfaces/vehicles/adap2e:
+    type: git
+    url: git@gitlab-ssh.irstea.fr:romea_ros2/interfaces/vehicles/adap2e.git
     version: main
 
