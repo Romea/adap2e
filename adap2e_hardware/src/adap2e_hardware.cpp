@@ -117,7 +117,7 @@ hardware_interface::return_type Adap2eHardware::read()
 #else
 hardware_interface::return_type Adap2eHardware::read(
   const rclcpp::Time & time,
-  const rclcpp::Duration & period);
+  const rclcpp::Duration & period)
 #endif
 {
   //  RCLCPP_INFO(rclcpp::get_logger("Adap2eHardware"), "Read data from robot");
