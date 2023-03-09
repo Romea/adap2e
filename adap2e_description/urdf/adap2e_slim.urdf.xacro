@@ -3,14 +3,18 @@
 
   <xacro:arg name="prefix" default="adap2e" />
   <xacro:arg name="mode" default="simulation" />
-  <xacro:arg name="controller_conf_yaml_file" default=""/>
+  <xacro:arg name="controller_conf_yaml_file" default="" />
+  <xacro:arg name="ros_namespace" default="/adap2e" />
 
   <xacro:include filename="$(find adap2e_description)/urdf/adap2e.xacro" />
-  <xacro:adap2e model="slim" mode="$(arg mode)" prefix="$(arg prefix)"/>
+  <xacro:adap2e model="slim" mode="$(arg mode)" prefix="$(arg prefix)" />
 
   <gazebo>
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-       <parameters>$(arg controller_conf_yaml_file)</parameters>
+      <parameters>$(arg controller_conf_yaml_file)</parameters>
+      <ros>
+        <namespace>$(arg ros_namespace)</namespace>
+      </ros>
     </plugin>
   </gazebo>
 
