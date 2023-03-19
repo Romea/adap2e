@@ -1,7 +1,7 @@
 # Copyright 2022 INRAE, French National Research Institute for Agriculture, Food and Environment
 # Add license
 
-from launch import LaunchDescription
+from launch import LaunchDescription, LaunchContext
 
 from launch.actions import (
     IncludeLaunchDescription,
@@ -158,6 +158,12 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument("urdf_description", default_value=urdf_description)
     )
+
+    # DeclareLaunchArgument("mode").execute(LaunchContext)
+    # mode = LaunchConfiguration("mode").perform(LaunchContext)
+    # print()
+    # if mode == "simulation":
+    # declared_arguments.append(DeclareLaunchArgument("xyz"))
 
     return LaunchDescription(
         declared_arguments + [OpaqueFunction(function=launch_setup)]
