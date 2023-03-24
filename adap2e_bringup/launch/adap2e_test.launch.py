@@ -63,7 +63,7 @@ def launch_setup(context, *args, **kwargs):
 
     actions.append(PushRosNamespace("adap2e"))
 
-    teleop_configuration_filename = (
+    teleop_configuration_file_path = (
         get_package_share_directory("adap2e_description") + "/config/teleop.yaml"
     )
 
@@ -78,7 +78,7 @@ def launch_setup(context, *args, **kwargs):
                 "robot_model": robot_model,
                 "joystick_type": joystick_type,
                 "joystick_driver": "joy",
-                "teleop_configuration_filename": teleop_configuration_filename,
+                "teleop_configuration_file_path": teleop_configuration_file_path,
             }.items(),
         )
     )
