@@ -90,6 +90,7 @@ def launch_setup(context, *args, **kwargs):
                 "robot_model": robot_model,
                 "joystick_type": joystick_type,
                 "joystick_driver": "joy",
+                "joystick_topic": "/adap2e/joystick/joy",
                 "teleop_configuration_file_path": teleop_configuration_file_path,
             }.items(),
         )

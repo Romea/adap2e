@@ -38,11 +38,11 @@ def launch_setup(context, *args, **kwargs):
 
     if robot_namespace:
         robot_description_name = "/" + robot_namespace + "/robot_description"
-        controller_manager_name = "/" + robot_namespace + "/controller_manager"
+        controller_manager_name = "/" + robot_namespace + "/base/controller_manager"
         joints_prefix = robot_namespace + "_"
     else:
         robot_description_name = "/robot_description"
-        controller_manager_name = "/controller_manager"
+        controller_manager_name = "/base/controller_manager"
         joints_prefix = ""
 
     use_sim_time = (mode == "simulation") or (mode == "replay")
@@ -100,6 +100,7 @@ def launch_setup(context, *args, **kwargs):
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[robot_description, controller_manager_yaml_file],
+        namespace="base"
         # output="screen",
     )
 
@@ -133,6 +134,7 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{"topics_type": "romea_mobile_base_msgs/TwoAxleSteeringCommand"}],
         remappings=[("~/out", "controller/cmd_two_axle_steering")],
         output="screen",
+        namespace="base"
     )
 
     return [
