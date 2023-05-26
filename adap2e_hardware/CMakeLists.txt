@@ -40,8 +40,8 @@ target_include_directories(
 )
 
 target_compile_definitions(
-  ${PROJECT_NAME} 
-  PUBLIC 
+  ${PROJECT_NAME}
+  PUBLIC
   ROS_DISTRO=${ROS_DISTRO})
 
 ament_target_dependencies(

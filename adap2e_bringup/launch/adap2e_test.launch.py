@@ -36,11 +36,11 @@ def launch_setup(context, *args, **kwargs):
     joystick_type = LaunchConfiguration("joystick_type").perform(context)
     joystick_device = LaunchConfiguration("joystick_device").perform(context)
 
-    actions = []
+    robot = []
 
     if mode == "simulation":
 
-        actions.append(
+        robot.append(
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
                     [
@@ -56,7 +56,7 @@ def launch_setup(context, *args, **kwargs):
             )
         )
 
-    actions.append(
+    robot.append(
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 [
@@ -73,54 +73,64 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
-    actions.append(PushRosNamespace("adap2e"))
-
     teleop_configuration_file_path = (
         get_package_share_directory("adap2e_description") + "/config/teleop.yaml"
     )
 
-    actions.append(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                get_package_share_directory("romea_teleop_drivers")
-                + "/launch/teleop.launch.py"
-            ),
-            launch_arguments={
-                "robot_type": "adap2e",
-                "robot_model": robot_model,
-                "joystick_type": joystick_type,
-                "joystick_driver": "joy",
-                "joystick_topic": "/adap2e/joystick/joy",
-                "teleop_configuration_file_path": teleop_configuration_file_path,
-            }.items(),
+    robot.append(
+        GroupAction(
+            actions=[
+                PushRosNamespace("adap2e"),
+                PushRosNamespace("base"),
+
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(
+                        get_package_share_directory("romea_teleop_drivers")
+                        + "/launch/teleop.launch.py"
+                    ),
+                    launch_arguments={
+                        "robot_type": "adap2e",
+                        "robot_model": robot_model,
+                        "joystick_type": joystick_type,
+                        "joystick_driver": "joy",
+                        "joystick_topic": "/adap2e/joystick/joy",
+                        "teleop_configuration_file_path": teleop_configuration_file_path,
+                    }.items(),
+                )
+            ]
         )
     )
 
-    actions.append(PushRosNamespace("joystick"))
+    robot.append(
+        GroupAction(
+            actions=[
+                PushRosNamespace("adap2e"),
+                PushRosNamespace("joystick"),
 
-    actions.append(
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                [
-                    PathJoinSubstitution(
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource(
                         [
-                            FindPackageShare("romea_joystick_bringup"),
-                            "launch",
-                            "drivers/joy.launch.py",
+                            PathJoinSubstitution(
+                                [
+                                    FindPackageShare("romea_joystick_bringup"),
+                                    "launch",
+                                    "drivers/joy.launch.py",
+                                ]
+                            )
                         ]
-                    )
-                ]
-            ),
-            launch_arguments={
-                "device": joystick_device,
-                "dead_zone": "0.05",
-                "autorepeat_rate": "10.0",
-                "frame_id": "joy",
-            }.items(),
+                    ),
+                    launch_arguments={
+                        "device": joystick_device,
+                        "dead_zone": "0.05",
+                        "autorepeat_rate": "10.0",
+                        "frame_id": "joy",
+                    }.items(),
+                )
+            ]
         )
     )
 
-    return [GroupAction(actions)]
+    return robot
 
 
 def generate_launch_description():

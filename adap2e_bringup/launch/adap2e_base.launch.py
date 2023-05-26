@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from launch import LaunchDescription, LaunchContext
+from launch import LaunchDescription  # , LaunchContext
 
 from launch.actions import (
     IncludeLaunchDescription,
@@ -34,16 +34,15 @@ def launch_setup(context, *args, **kwargs):
     mode = LaunchConfiguration("mode").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
+    base_name = LaunchConfiguration("base_name").perform(context)
     urdf_description = LaunchConfiguration("urdf_description").perform(context)
 
     if robot_namespace:
-        robot_description_name = "/" + robot_namespace + "/robot_description"
-        controller_manager_name = "/" + robot_namespace + "/base/controller_manager"
-        joints_prefix = robot_namespace + "_"
+        controller_manager_name = "/" + robot_namespace + "/"+base_name+"/controller_manager"
+        robot_prefix = robot_namespace + "_"
     else:
-        robot_description_name = "/robot_description"
-        controller_manager_name = "/base/controller_manager"
-        joints_prefix = ""
+        controller_manager_name = "/"+base_name+"/controller_manager"
+        robot_prefix = ""
 
     use_sim_time = (mode == "simulation") or (mode == "replay")
 
@@ -64,17 +63,13 @@ def launch_setup(context, *args, **kwargs):
         + "/config/mobile_base_controller.yaml"
     )
 
-    robot_description = {"robot_description": urdf_description}
+    robot_description_file = "/tmp/"+robot_prefix+"description.urdf"
+    with open(robot_description_file, "w") as f:
+        f.write(urdf_description)
 
-    robot_state_publisher = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        parameters=[robot_description],
-        output={
-            'stdout': 'log',
-            'stderr': 'log',
-        }
-    )
+    base_ros2_control_description_file = "/tmp/"+robot_prefix+base_name+"_ros2_control.urdf"
+    with open(base_ros2_control_description_file, "r") as f:
+        base_ros2_control_description = f.read()
 
     spawn_entity = Node(
         condition=LaunchConfigurationEquals("mode", "simulation"),
@@ -82,12 +77,10 @@ def launch_setup(context, *args, **kwargs):
         executable="spawn_entity.py",
         exec_name="gazebo_spawn_entity",
         arguments=[
-            "-topic",
-            robot_description_name,
+            "-file",
+            robot_description_file,
             "-entity",
             robot_namespace,
-            # "-robot_namespace",
-            # robot_namespace,
         ],
         output={
             'stdout': 'log',
@@ -99,8 +92,10 @@ def launch_setup(context, *args, **kwargs):
         condition=LaunchConfigurationEquals("mode", "live"),
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description, controller_manager_yaml_file],
-        namespace="base"
+        parameters=[
+            {"robot_description": base_ros2_control_description},
+            controller_manager_yaml_file
+        ],
         # output="screen",
     )
 
@@ -117,7 +112,7 @@ def launch_setup(context, *args, **kwargs):
             ]
         ),
         launch_arguments={
-            "joints_prefix": joints_prefix,
+            "joints_prefix": robot_prefix,
             "controller_name": "mobile_base_controller",
             "controller_manager_name": controller_manager_name,
             "base_description_yaml_filename": base_description_yaml_file,
@@ -134,7 +129,6 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{"topics_type": "romea_mobile_base_msgs/TwoAxleSteeringCommand"}],
         remappings=[("~/out", "controller/cmd_two_axle_steering")],
         output="screen",
-        namespace="base"
     )
 
     return [
@@ -142,8 +136,8 @@ def launch_setup(context, *args, **kwargs):
             actions=[
                 SetParameter(name="use_sim_time", value=use_sim_time),
                 PushRosNamespace(robot_namespace),
-                robot_state_publisher,
                 spawn_entity,
+                PushRosNamespace(base_name),
                 controller_manager,
                 controller,
                 cmd_mux,
@@ -164,6 +158,10 @@ def generate_launch_description():
         DeclareLaunchArgument("robot_namespace", default_value="adap2e")
     )
 
+    declared_arguments.append(
+        DeclareLaunchArgument("base_name", default_value="base")
+    )
+
     urdf_description = Command(
         [
             ExecutableInPackage("urdf_description.py", "adap2e_bringup"),
@@ -171,6 +169,8 @@ def generate_launch_description():
             LaunchConfiguration("robot_namespace"),
             " robot_model:",
             LaunchConfiguration("robot_model"),
+            " base_name:",
+            LaunchConfiguration("base_name"),
             " mode:",
             LaunchConfiguration("mode"),
         ]

@@ -29,7 +29,8 @@ if __name__ == "__main__":
         parameters[name] = value
 
     mode = parameters["mode"]
+    base_name = parameters["base_name"]
     robot_model = parameters["robot_model"]
     prefix = robot_urdf_prefix(parameters["robot_namespace"])
     ros_prefix = robot_prefix(parameters["robot_namespace"])
-    print(urdf_description(prefix, mode, robot_model, ros_prefix))
+    print(urdf_description(prefix, mode, base_name, robot_model, ros_prefix))
