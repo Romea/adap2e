@@ -22,10 +22,10 @@ from launch.actions import (
     GroupAction,
 )
 
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
+from launch.substitutions import Command, PathJoinSubstitution, LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import PushRosNamespace
-from launch_ros.substitutions import FindPackageShare
+from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.substitutions import ExecutableInPackage, FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 
 
@@ -33,6 +33,7 @@ def launch_setup(context, *args, **kwargs):
 
     mode = LaunchConfiguration("mode").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
+    robot_urdf_description = LaunchConfiguration("robot_urdf_description").perform(context)
     joystick_type = LaunchConfiguration("joystick_type").perform(context)
     joystick_device = LaunchConfiguration("joystick_device").perform(context)
 
@@ -53,6 +54,28 @@ def launch_setup(context, *args, **kwargs):
                         )
                     ]
                 )
+            )
+        )
+
+        robot_description_file = "/tmp/adap2e_description.urdf"
+        with open(robot_description_file, "w") as f:
+            f.write(robot_urdf_description)
+
+        robot.append(
+            Node(
+                package="gazebo_ros",
+                executable="spawn_entity.py",
+                exec_name="gazebo_spawn_entity",
+                arguments=[
+                    "-file",
+                    robot_description_file,
+                    "-entity",
+                    "adap2e",
+                ],
+                output={
+                    'stdout': 'log',
+                    'stderr': 'log',
+                }
             )
         )
 
@@ -140,6 +163,22 @@ def generate_launch_description():
     declared_arguments.append(DeclareLaunchArgument("mode", default_value="simulation"))
 
     declared_arguments.append(DeclareLaunchArgument("robot_model", default_value="fat"))
+
+    urdf_description = Command(
+        [
+            ExecutableInPackage("urdf_description.py", "adap2e_bringup"),
+            " robot_namespace:adap2e",
+            " robot_model:",
+            LaunchConfiguration("robot_model"),
+            " base_name:base",
+            " mode:",
+            LaunchConfiguration("mode"),
+        ]
+    )
+
+    declared_arguments.append(
+        DeclareLaunchArgument("robot_urdf_description", default_value=urdf_description)
+    )
 
     declared_arguments.append(
         DeclareLaunchArgument("joystick_type", default_value="xbox")
