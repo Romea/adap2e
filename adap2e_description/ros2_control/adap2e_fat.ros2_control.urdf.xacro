@@ -5,7 +5,7 @@
   <xacro:arg name="mode" default="simulation" />
   <xacro:arg name="base_name" default="base" />
 
-  <xacro:include filename="$(find adap2e_description)/urdf/ros2_control/adap2e.ros2_control.xacro" />
+  <xacro:include filename="$(find adap2e_description)/ros2_control/adap2e.ros2_control.xacro" />
 
   <xacro:adap2e_ros2_control
     model="fat"
