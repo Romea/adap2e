@@ -21,7 +21,7 @@ def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_fi
 
     ros2_control_xacro_file = (
         get_package_share_directory("adap2e_description")
-        + "/urdf/ros2_control/adap2e_"
+        + "/ros2_control/adap2e_"
         + robot_model
         + ".ros2_control.urdf.xacro"
     )
