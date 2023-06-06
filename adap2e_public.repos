@@ -5,7 +5,7 @@ repositories:
     version: main
   romea_core/romea_mobile_base:
     type: git
-    url: https://github.com/Romea/romea-core-mobile_base.git
+    url: https://github.com/Romea/romea-core-mobile-base.git
     version: main
 
   romea_ros2/tools/romea_common:
@@ -15,6 +15,10 @@ repositories:
   romea_ros2/tools/romea_cmd_mux:
     type: git
     url: https://github.com/Romea/romea-ros2-cmd-mux.git
+    version: main
+  romea_ros2/tools/romea_simulation:
+    type: git
+    url: https://github.com/Romea/romea-ros2-simulation.git
     version: main
   romea_ros2/interfaces/teleoperation/romea_joytick:
     type: git
@@ -26,9 +30,9 @@ repositories:
     version: main
   romea_ros2/interfaces/vehicles/romea_mobile_base:
     type: git
-    url: https://github.com/Romea/romea-ros2-mobile-base
+    url: https://github.com/Romea/romea-ros2-mobile-base.git
     version: main
   romea_ros2/interfaces/vehicles/adap2e:
     type: git
-    url: https://github.com/Romea/adap2e
+    url: https://github.com/Romea/adap2e.git
     version: main
