@@ -4,11 +4,11 @@
 
   <name>adap2e_description</name>
   <version>0.0.0</version>
-  <description>Package with URDF and description files of adap2e robot.</description>
+  <description>Package containgin URDF and configuration files of adap2e robot.</description>
 
   <maintainer email="jean.laneurit@inrae.fr">Jean Laneurit</maintainer>
 
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_python</buildtool_depend>
