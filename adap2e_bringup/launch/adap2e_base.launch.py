@@ -43,8 +43,6 @@ def launch_setup(context, *args, **kwargs):
         controller_manager_name = "/"+base_name+"/controller_manager"
         robot_prefix = ""
 
-    use_sim_time = (mode == "simulation") or (mode == "replay")
-
     base_description_yaml_file = (
         get_package_share_directory("adap2e_description")
         + "/config/adap2e_"
@@ -112,7 +110,7 @@ def launch_setup(context, *args, **kwargs):
     return [
         GroupAction(
             actions=[
-                SetParameter(name="use_sim_time", value=use_sim_time),
+                SetParameter(name="use_sim_time", value=(mode != "live")),
                 PushRosNamespace(robot_namespace),
                 PushRosNamespace(base_name),
                 controller_manager,
