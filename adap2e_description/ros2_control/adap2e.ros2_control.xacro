@@ -39,10 +39,10 @@
       value="${props['geometry']['front_axle']['wheels']['radius']}" />
     <xacro:property name="rear_wheel_radius"
       value="${props['geometry']['rear_axle']['wheels']['radius']}" />
-    <xacro:property name="front_wheel_width"
-      value="${props['geometry']['front_axle']['wheels']['width']}" />
-    <xacro:property name="rear_wheel_width"
-      value="${props['geometry']['rear_axle']['wheels']['width']}" />
+    <xacro:property name="maximal_wheel_steering_angle"
+      value="${props['wheels_steering_control']['command']['maximal_angle']}" />
+    <xacro:property name="maximal_wheel_speed"
+      value="${props['wheels_speed_control']['command']['maximal_speed']}" />
 
 
     <!-- simulation plugins -->
