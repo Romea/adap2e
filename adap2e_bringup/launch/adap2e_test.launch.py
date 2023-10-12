@@ -41,6 +41,14 @@ def launch_setup(context, *args, **kwargs):
 
     if mode == "simulation":
 
+        world = PathJoinSubstitution(
+            [
+                FindPackageShare("romea_simulation_gazebo_worlds"),
+                "worlds",
+                "friction_cone.world",
+            ]
+        )
+
         robot.append(
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
@@ -49,7 +57,24 @@ def launch_setup(context, *args, **kwargs):
                             [
                                 FindPackageShare("gazebo_ros"),
                                 "launch",
-                                "gazebo.launch.py",
+                                "gzserver.launch.py",
+                            ]
+                        )
+                    ]
+                ),
+                launch_arguments={"world": world, "verbose": "false"}.items(),
+            )
+        )
+
+        robot.append(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    [
+                        PathJoinSubstitution(
+                            [
+                                FindPackageShare("gazebo_ros"),
+                                "launch",
+                                "gzclient.launch.py",
                             ]
                         )
                     ]
@@ -173,7 +198,8 @@ def generate_launch_description():
             " base_name:base",
             " mode:",
             LaunchConfiguration("mode"),
-        ]
+        ],
+        on_stderr="ignore",
     )
 
     declared_arguments.append(
