@@ -23,7 +23,7 @@ geometry:
 
 wheels_steering_control:
     command:
-      maximal_angle: 0.48450
+      maximal_angle: 0.75  # not verified on the real vehicle
       maximal_angular_speed: 1.0
     sensor:
       angle_std: 0.017453
