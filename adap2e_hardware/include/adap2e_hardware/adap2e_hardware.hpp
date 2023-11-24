@@ -35,6 +35,8 @@
 
 namespace romea
 {
+namespace ros2
+{
 
 class Adap2eHardware : public HardwareSystemInterface4WS4WD
 {
@@ -42,6 +44,8 @@ public:
   RCLCPP_SHARED_PTR_DEFINITIONS(Adap2eHardware);
 
   Adap2eHardware();
+
+  virtual ~Adap2eHardware() = default;
 
 #if ROS_DISTRO == ROS_GALACTIC
   hardware_interface::return_type read()override;
@@ -156,6 +160,7 @@ private:
 #endif
 };
 
+}  // namespace ros2
 }  // namespace romea
 
 #endif  // ADAP2E_HARDWARE__ADAP2E_HARDWARE_HPP_

@@ -51,6 +51,8 @@ const std::chrono::milliseconds TIMEOUT(5);
 
 namespace romea
 {
+namespace ros2
+{
 
 //-----------------------------------------------------------------------------
 Adap2eHardware::Adap2eHardware()
@@ -136,17 +138,17 @@ hardware_interface::return_type Adap2eHardware::read(
 
   set_hardware_state_();
 
-  std::cout << "wheels speeds " <<
-    front_left_wheel_linear_speed_measure_.load() << " " <<
-    front_right_wheel_linear_speed_measure_.load() << " " <<
-    rear_left_wheel_linear_speed_measure_.load() << " " <<
-    rear_right_wheel_linear_speed_measure_.load() << std::endl;
+  // std::cout << "wheels speeds " <<
+  //   front_left_wheel_linear_speed_measure_.load() << " " <<
+  //   front_right_wheel_linear_speed_measure_.load() << " " <<
+  //   rear_left_wheel_linear_speed_measure_.load() << " " <<
+  //   rear_right_wheel_linear_speed_measure_.load() << std::endl;
 
-  std::cout << "wheels angless " <<
-    front_left_wheel_steering_angle_measure_.load() << " " <<
-    front_right_wheel_steering_angle_measure_.load() << " " <<
-    rear_left_wheel_steering_angle_measure_.load() << " " <<
-    rear_right_wheel_steering_angle_measure_.load() << std::endl;
+  // std::cout << "wheels angless " <<
+  //   front_left_wheel_steering_angle_measure_.load() << " " <<
+  //   front_right_wheel_steering_angle_measure_.load() << " " <<
+  //   rear_left_wheel_steering_angle_measure_.load() << " " <<
+  //   rear_right_wheel_steering_angle_measure_.load() << std::endl;
 
 #ifndef NDEBUG
   write_log_data_();
@@ -168,21 +170,20 @@ hardware_interface::return_type Adap2eHardware::write(
 
   get_hardware_command_();
 
+
   if (is_drive_enable_()) {
-    std::cout << " send command " << std::endl;
+    // std::cout << " send command " << std::endl;
     send_command_();
 
-    std::cout << "wheels speeds command " <<
-      front_left_wheel_linear_speed_command_ << " " <<
-      front_right_wheel_linear_speed_command_ << " " <<
-      rear_left_wheel_linear_speed_command_ << " " <<
-      rear_right_wheel_linear_speed_command_ << std::endl;
+    // std::cout << "wheels speeds command " << front_left_wheel_linear_speed_command_ << " " <<
+    //   front_right_wheel_linear_speed_command_ << " " << rear_left_wheel_linear_speed_command_ <<
+    //   " " << rear_right_wheel_linear_speed_command_ << std::endl;
 
-    std::cout << "wheels angless command " <<
-      front_left_wheel_steering_angle_command_ << " " <<
-      front_right_wheel_steering_angle_command_ << " " <<
-      rear_left_wheel_steering_angle_command_ << " " <<
-      rear_right_wheel_steering_angle_command_ << std::endl;
+    // std::cout << "wheels angless command " <<
+    //   front_left_wheel_steering_angle_command_ << " " <<
+    //   front_right_wheel_steering_angle_command_ << " " <<
+    //   rear_left_wheel_steering_angle_command_ << " " <<
+    //   rear_right_wheel_steering_angle_command_ << std::endl;
   }
 
   return hardware_interface::return_type::OK;
@@ -191,21 +192,26 @@ hardware_interface::return_type Adap2eHardware::write(
 //-----------------------------------------------------------------------------
 void Adap2eHardware::set_hardware_state_()
 {
-  HardwareState4WS4WD state;
+  core::HardwareState4WS4WD state;
 
   state.frontLeftWheelSteeringAngle = front_left_wheel_steering_angle_measure_;
   state.frontRightWheelSteeringAngle = front_right_wheel_steering_angle_measure_;
   state.rearLeftWheelSteeringAngle = rear_left_wheel_steering_angle_measure_;
   state.rearRightWheelSteeringAngle = rear_right_wheel_steering_angle_measure_;
 
-  state.frontLeftWheelSpinningMotion.velocity =
-    front_left_wheel_linear_speed_measure_ / front_wheel_radius_;
-  state.frontRightWheelSpinningMotion.velocity =
-    front_right_wheel_linear_speed_measure_ / front_wheel_radius_;
-  state.rearLeftWheelSpinningMotion.velocity =
-    rear_left_wheel_linear_speed_measure_ / rear_wheel_radius_;
-  state.frontRightWheelSpinningMotion.velocity =
-    rear_right_wheel_linear_speed_measure_ / rear_wheel_radius_;
+  // state.frontLeftWheelSpinningMotion.velocity =
+  //   front_left_wheel_linear_speed_measure_ / front_wheel_radius_;
+  // state.frontRightWheelSpinningMotion.velocity =
+  //   front_right_wheel_linear_speed_measure_ / front_wheel_radius_;
+  // state.rearLeftWheelSpinningMotion.velocity =
+  //   rear_left_wheel_linear_speed_measure_ / rear_wheel_radius_;
+  // state.rearRightWheelSpinningMotion.velocity =
+  //   rear_right_wheel_linear_speed_measure_ / rear_wheel_radius_;
+
+  state.frontLeftWheelSpinningMotion.velocity = front_left_wheel_linear_speed_measure_;
+  state.frontRightWheelSpinningMotion.velocity = front_right_wheel_linear_speed_measure_;
+  state.rearLeftWheelSpinningMotion.velocity = rear_left_wheel_linear_speed_measure_;
+  state.rearRightWheelSpinningMotion.velocity = rear_right_wheel_linear_speed_measure_;
 
   hardware_interface_->set_state(state);
 }
@@ -213,21 +219,27 @@ void Adap2eHardware::set_hardware_state_()
 //-----------------------------------------------------------------------------
 void Adap2eHardware::get_hardware_command_()
 {
-  HardwareCommand4WS4WD command = hardware_interface_->get_command();
+  core::HardwareCommand4WS4WD command = hardware_interface_->get_command();
 
   front_left_wheel_steering_angle_command_ = command.frontLeftWheelSteeringAngle;
   front_right_wheel_steering_angle_command_ = command.frontRightWheelSteeringAngle;
   rear_left_wheel_steering_angle_command_ = command.rearLeftWheelSteeringAngle;
   rear_right_wheel_steering_angle_command_ = command.rearRightWheelSteeringAngle;
 
-  front_left_wheel_linear_speed_command_ =
-    command.frontLeftWheelSpinningSetPoint * front_wheel_radius_;
-  front_right_wheel_linear_speed_command_ =
-    command.frontRightWheelSpinningSetPoint * front_wheel_radius_;
-  rear_left_wheel_linear_speed_command_ =
-    command.rearLeftWheelSpinningSetPoint * rear_wheel_radius_;
-  rear_right_wheel_linear_speed_command_ =
-    command.rearRightWheelSpinningSetPoint * rear_wheel_radius_;
+  // front_left_wheel_linear_speed_command_ =
+  //   command.frontLeftWheelSpinningSetPoint * front_wheel_radius_;
+  // front_right_wheel_linear_speed_command_ =
+  //   command.frontRightWheelSpinningSetPoint * front_wheel_radius_;
+  // rear_left_wheel_linear_speed_command_ =
+  //   command.rearLeftWheelSpinningSetPoint * rear_wheel_radius_;
+  // rear_right_wheel_linear_speed_command_ =
+  //   command.rearRightWheelSpinningSetPoint * rear_wheel_radius_;
+
+  front_left_wheel_linear_speed_command_ = command.frontLeftWheelSpinningSetPoint;
+  front_right_wheel_linear_speed_command_ = command.frontRightWheelSpinningSetPoint;
+  rear_left_wheel_linear_speed_command_ = command.rearLeftWheelSpinningSetPoint;
+  rear_right_wheel_linear_speed_command_ = command.rearRightWheelSpinningSetPoint;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -367,7 +379,7 @@ void Adap2eHardware::decode_front_wheel_speeds_()
     front_left_wheel_linear_speed_measure_,
     front_right_wheel_linear_speed_measure_);
 
-  RCLCPP_ERROR_STREAM(
+  RCLCPP_DEBUG_STREAM(
     rclcpp::get_logger("Adap2eHardware"),
     "ID = " << FRONT_WHEEL_LINEAR_SPEEDS_MEASUREMENT_ID <<
       " front speeds : left " << front_left_wheel_linear_speed_measure_ <<
@@ -510,8 +522,9 @@ void Adap2eHardware::write_log_data_()
 }
 #endif
 
+}  // namespace ros2
 }  // namespace romea
 
 
 #include "pluginlib/class_list_macros.hpp"
-PLUGINLIB_EXPORT_CLASS(romea::Adap2eHardware, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(romea::ros2::Adap2eHardware, hardware_interface::SystemInterface)
