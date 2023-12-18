@@ -45,7 +45,7 @@ public:
 
   Adap2eHardware();
 
-  virtual ~Adap2eHardware() = default;
+  virtual ~Adap2eHardware();
 
 #if ROS_DISTRO == ROS_GALACTIC
   hardware_interface::return_type read()override;

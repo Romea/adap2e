@@ -56,7 +56,7 @@ namespace ros2
 
 //-----------------------------------------------------------------------------
 Adap2eHardware::Adap2eHardware()
-: HardwareSystemInterface4WS4WD(),
+: HardwareSystemInterface4WS4WD("Adap2eHardware"),
   can_receiver_thread_(nullptr),
   can_receiver_thread_run_(false),
   can_sender_("can0"),
@@ -88,6 +88,14 @@ Adap2eHardware::Adap2eHardware()
 #endif
 }
 
+//-----------------------------------------------------------------------------
+Adap2eHardware::~Adap2eHardware()
+{
+  // force deactive when interface has not been deactivated by controller manager but by ctrl-c
+  if (lifecycle_state_.id() == 3) {
+    on_deactivate(lifecycle_state_);
+  }
+}
 
 //-----------------------------------------------------------------------------
 hardware_interface::return_type Adap2eHardware::connect_()
@@ -120,7 +128,7 @@ hardware_interface::return_type Adap2eHardware::load_info_(
     rear_wheel_radius_ = get_parameter<float>(hardware_info, "rear_wheel_radius");
     return hardware_interface::return_type::OK;
   } catch (std::runtime_error & e) {
-    RCLCPP_FATAL_STREAM(rclcpp::get_logger("HardwareSystemInterface"), e.what());
+    RCLCPP_FATAL_STREAM(rclcpp::get_logger("Adap2eHardware"), e.what());
     return hardware_interface::return_type::ERROR;
   }
 }
@@ -239,7 +247,6 @@ void Adap2eHardware::get_hardware_command_()
   front_right_wheel_linear_speed_command_ = command.frontRightWheelSpinningSetPoint;
   rear_left_wheel_linear_speed_command_ = command.rearLeftWheelSpinningSetPoint;
   rear_right_wheel_linear_speed_command_ = command.rearRightWheelSpinningSetPoint;
-
 }
 
 //-----------------------------------------------------------------------------
