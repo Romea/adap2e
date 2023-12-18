@@ -41,5 +41,4 @@ def generate_launch_description():
                 launch_arguments={"urdf_file": urdf_file}.items(),
             )
         ],
-        on_stderr="ignore",
     )
