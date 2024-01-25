@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="adap2e_fat" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="adap2e_simulation"
+    params="mode ros_prefix base_name ros2_control_config_urdf_file controller_manager_config_yaml_file">
+
+    <xacro:if value="${'simulation' in mode}">
+      <xacro:if value="${'gazebo' in  mode}">
+
+        <gazebo>
+          <plugin filename="libromea_gazebo_ros2_control.so" name="gazebo_ros2_control">
+            <ros2_control_config_file>${ros2_control_config_urdf_file}</ros2_control_config_file>
+            <controller_manager_config_file>${controller_manager_config_yaml_file}</controller_manager_config_file>
+            <ros>
+              <namespace>${ros_prefix}${base_name}</namespace>
+            </ros>
+          </plugin>
+        </gazebo>
+
+      </xacro:if>
+    </xacro:if>
+
+  </xacro:macro>
+
+
+</robot>

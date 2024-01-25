@@ -21,8 +21,8 @@ from launch.actions import (
     OpaqueFunction,
     GroupAction,
 )
-from launch.conditions import LaunchConfigurationEquals, LaunchConfigurationNotEquals
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
+from launch.conditions import LaunchConfigurationNotEquals, IfCondition
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node, SetParameter, PushRosNamespace
 from launch_ros.substitutions import FindPackageShare
@@ -36,11 +36,14 @@ def launch_setup(context, *args, **kwargs):
     robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
     base_name = LaunchConfiguration("base_name").perform(context)
 
+    if mode == "simulation":
+        mode += "_gazebo_classic"
+
     if robot_namespace:
-        controller_manager_name = "/" + robot_namespace + "/"+base_name+"/controller_manager"
+        controller_manager_name = "/" + robot_namespace + "/" + base_name + "/controller_manager"
         robot_prefix = robot_namespace + "_"
     else:
-        controller_manager_name = "/"+base_name+"/controller_manager"
+        controller_manager_name = "/" + base_name + "/controller_manager"
         robot_prefix = ""
 
     base_description_yaml_file = (
@@ -51,28 +54,27 @@ def launch_setup(context, *args, **kwargs):
     )
 
     controller_manager_yaml_file = (
-        get_package_share_directory("adap2e_bringup")
-        + "/config/controller_manager.yaml"
+        get_package_share_directory("adap2e_bringup") + "/config/controller_manager.yaml"
     )
 
     base_controller_yaml_file = (
-        get_package_share_directory("adap2e_bringup")
-        + "/config/mobile_base_controller.yaml"
+        get_package_share_directory("adap2e_bringup") + "/config/mobile_base_controller.yaml"
     )
 
-    base_ros2_control_description_file = "/tmp/"+robot_prefix+base_name+"_ros2_control.urdf"
+    base_ros2_control_description_file = "/tmp/" + robot_prefix + base_name + "_ros2_control.urdf"
     with open(base_ros2_control_description_file, "r") as f:
         base_ros2_control_description = f.read()
 
     controller_manager = Node(
-        condition=LaunchConfigurationEquals("mode", "live"),
+        condition=IfCondition(
+            PythonExpression(["'", mode, "' != 'replay' and  'gazebo' not in '", mode, "'"])
+        ),
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
             {"robot_description": base_ros2_control_description},
-            controller_manager_yaml_file
+            controller_manager_yaml_file,
         ],
-        # output="screen",
     )
 
     controller = IncludeLaunchDescription(
@@ -129,14 +131,8 @@ def generate_launch_description():
 
     declared_arguments.append(DeclareLaunchArgument("robot_model"))
 
-    declared_arguments.append(
-        DeclareLaunchArgument("robot_namespace", default_value="adap2e")
-    )
+    declared_arguments.append(DeclareLaunchArgument("robot_namespace", default_value="adap2e"))
 
-    declared_arguments.append(
-        DeclareLaunchArgument("base_name", default_value="base")
-    )
+    declared_arguments.append(DeclareLaunchArgument("base_name", default_value="base"))
 
-    return LaunchDescription(
-        declared_arguments + [OpaqueFunction(function=launch_setup)]
-    )
+    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])

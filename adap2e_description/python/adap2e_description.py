@@ -19,6 +19,9 @@ from ament_index_python.packages import get_package_share_directory
 
 def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_file, ros_prefix):
 
+    if mode == "simulation":
+        mode += "_gazebo_classic"
+
     ros2_control_xacro_file = (
         get_package_share_directory("adap2e_description")
         + "/ros2_control/adap2e_"

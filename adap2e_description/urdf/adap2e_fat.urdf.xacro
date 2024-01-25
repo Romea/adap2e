@@ -9,17 +9,20 @@
   <xacro:arg name="ros_prefix" default="/adap2e/" />
 
   <xacro:include filename="$(find adap2e_description)/urdf/adap2e.xacro" />
-  <xacro:adap2e model="fat" mode="$(arg mode)" prefix="$(arg prefix)" />
 
-  <gazebo>
-    <plugin filename="libromea_gazebo_ros2_control.so" name="gazebo_ros2_control">
-      <ros2_control_config_file>$(arg ros2_control_config_urdf_file)</ros2_control_config_file>
-      <controller_manager_config_file>$(arg controller_manager_config_yaml_file)</controller_manager_config_file>
-      <ros>
-        <namespace>$(arg ros_prefix)$(arg base_name)</namespace>
-      </ros>
-    </plugin>
-  </gazebo>
+  <xacro:adap2e
+    model="fat"
+    mode="$(arg mode)"
+    prefix="$(arg prefix)" />
+
+  <xacro:include filename="$(find adap2e_description)/urdf/adap2e.simulation.xacro" />
+
+  <xacro:adap2e_simulation
+    mode="$(arg mode)"
+    base_name="$(arg base_name)"
+    ros_prefix="$(arg ros_prefix)"
+    ros2_control_config_urdf_file="$(arg ros2_control_config_urdf_file)"
+    controller_manager_config_yaml_file="$(arg controller_manager_config_yaml_file)" />
 
 
 </robot>

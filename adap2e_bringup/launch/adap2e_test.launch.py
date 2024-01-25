@@ -40,13 +40,12 @@ def launch_setup(context, *args, **kwargs):
     robot = []
 
     if mode == "simulation":
+        mode += "_gazebo_classic"
+
+    if mode == "simulation_gazebo_classic":
 
         world = PathJoinSubstitution(
-            [
-                FindPackageShare("romea_simulation_gazebo_worlds"),
-                "worlds",
-                "friction_cone.world",
-            ]
+            [FindPackageShare("romea_simulation_gazebo_worlds"), "worlds", "friction_cone.world"]
         )
 
         robot.append(
@@ -54,11 +53,7 @@ def launch_setup(context, *args, **kwargs):
                 PythonLaunchDescriptionSource(
                     [
                         PathJoinSubstitution(
-                            [
-                                FindPackageShare("gazebo_ros"),
-                                "launch",
-                                "gzserver.launch.py",
-                            ]
+                            [FindPackageShare("gazebo_ros"), "launch", "gzserver.launch.py"]
                         )
                     ]
                 ),
@@ -71,11 +66,7 @@ def launch_setup(context, *args, **kwargs):
                 PythonLaunchDescriptionSource(
                     [
                         PathJoinSubstitution(
-                            [
-                                FindPackageShare("gazebo_ros"),
-                                "launch",
-                                "gzclient.launch.py",
-                            ]
+                            [FindPackageShare("gazebo_ros"), "launch", "gzclient.launch.py"]
                         )
                     ]
                 )
@@ -91,16 +82,8 @@ def launch_setup(context, *args, **kwargs):
                 package="gazebo_ros",
                 executable="spawn_entity.py",
                 exec_name="gazebo_spawn_entity",
-                arguments=[
-                    "-file",
-                    robot_description_file,
-                    "-entity",
-                    "adap2e",
-                ],
-                output={
-                    'stdout': 'log',
-                    'stderr': 'log',
-                }
+                arguments=["-file", robot_description_file, "-entity", "adap2e"],
+                output={"stdout": "log", "stderr": "log"},
             )
         )
 
@@ -109,11 +92,7 @@ def launch_setup(context, *args, **kwargs):
             PythonLaunchDescriptionSource(
                 [
                     PathJoinSubstitution(
-                        [
-                            FindPackageShare("adap2e_bringup"),
-                            "launch",
-                            "adap2e_base.launch.py",
-                        ]
+                        [FindPackageShare("adap2e_bringup"), "launch", "adap2e_base.launch.py"]
                     )
                 ]
             ),
@@ -130,7 +109,6 @@ def launch_setup(context, *args, **kwargs):
             actions=[
                 PushRosNamespace("adap2e"),
                 PushRosNamespace("base"),
-
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         get_package_share_directory("adap2e_bringup")
@@ -143,7 +121,7 @@ def launch_setup(context, *args, **kwargs):
                         "joystick_topic": "/adap2e/joystick/joy",
                         "teleop_configuration_file_path": teleop_configuration_file_path,
                     }.items(),
-                )
+                ),
             ]
         )
     )
@@ -153,7 +131,6 @@ def launch_setup(context, *args, **kwargs):
             actions=[
                 PushRosNamespace("adap2e"),
                 PushRosNamespace("joystick"),
-
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         [
@@ -172,7 +149,7 @@ def launch_setup(context, *args, **kwargs):
                         "autorepeat_rate": "10.0",
                         "frame_id": "joy",
                     }.items(),
-                )
+                ),
             ]
         )
     )
@@ -205,14 +182,10 @@ def generate_launch_description():
         DeclareLaunchArgument("robot_urdf_description", default_value=urdf_description)
     )
 
-    declared_arguments.append(
-        DeclareLaunchArgument("joystick_type", default_value="xbox")
-    )
+    declared_arguments.append(DeclareLaunchArgument("joystick_type", default_value="xbox"))
 
     declared_arguments.append(
         DeclareLaunchArgument("joystick_device", default_value="/dev/input/js0")
     )
 
-    return LaunchDescription(
-        declared_arguments + [OpaqueFunction(function=launch_setup)]
-    )
+    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])

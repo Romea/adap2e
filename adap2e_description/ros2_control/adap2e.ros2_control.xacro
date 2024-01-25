@@ -46,12 +46,25 @@
 
 
     <!-- simulation plugins -->
-    <xacro:property
-      name="simulation_hardware_plugin"
-      value="romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD" />
-    <xacro:property
-      name="live_hardware_plugin"
-      value="adap2e_hardware/Adap2eHardware" />
+    <xacro:if value="${'simulation' in mode}">
+      <xacro:if value="${'gazebo' in  mode}">
+        <xacro:property
+          name="simulation_hardware_plugin"
+          value="romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD" />
+      </xacro:if>
+
+      <xacro:if value="${'4dv' in  mode or 'isaac' in mode}">
+        <xacro:property
+          name="simulation_hardware_plugin"
+          value="romea_mobile_base_simulation/GenericSimulationSystemInterface4WS4WD" />
+      </xacro:if>
+    </xacro:if>
+
+    <xacro:if value="${mode == 'live'}">
+      <xacro:property
+        name="live_hardware_plugin"
+        value="adap2e_hardware/Adap2eHardware" />
+    </xacro:if>
 
     <xacro:base_control mode="${mode}" base_name="${base_name}" />
 
