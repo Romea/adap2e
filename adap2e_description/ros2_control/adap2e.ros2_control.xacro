@@ -60,7 +60,7 @@
       </xacro:if>
     </xacro:if>
 
-    <xacro:if value="${mode == 'live'}">
+    <xacro:if value="${mode ==  'live'}">
       <xacro:property
         name="live_hardware_plugin"
         value="adap2e_hardware/Adap2eHardware" />

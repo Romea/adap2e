@@ -21,7 +21,8 @@ from launch.actions import (
     OpaqueFunction,
     GroupAction,
 )
-from launch.conditions import LaunchConfigurationNotEquals, IfCondition
+
+from launch.conditions import IfCondition
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node, SetParameter, PushRosNamespace
@@ -32,12 +33,15 @@ from ament_index_python.packages import get_package_share_directory
 def launch_setup(context, *args, **kwargs):
 
     mode = LaunchConfiguration("mode").perform(context)
-    robot_model = LaunchConfiguration("robot_model").perform(context)
-    robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
-    base_name = LaunchConfiguration("base_name").perform(context)
+    if "replay" in mode:
+        return []
 
     if mode == "simulation":
         mode += "_gazebo_classic"
+
+    robot_model = LaunchConfiguration("robot_model").perform(context)
+    robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
+    base_name = LaunchConfiguration("base_name").perform(context)
 
     if robot_namespace:
         controller_manager_name = "/" + robot_namespace + "/" + base_name + "/controller_manager"
@@ -66,9 +70,7 @@ def launch_setup(context, *args, **kwargs):
         base_ros2_control_description = f.read()
 
     controller_manager = Node(
-        condition=IfCondition(
-            PythonExpression(["'", mode, "' != 'replay' and  'gazebo' not in '", mode, "'"])
-        ),
+        condition=IfCondition(PythonExpression(["'gazebo' not in '", mode, "'"])),
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
@@ -96,11 +98,9 @@ def launch_setup(context, *args, **kwargs):
             "base_description_yaml_filename": base_description_yaml_file,
             "base_controller_yaml_filename": base_controller_yaml_file,
         }.items(),
-        condition=LaunchConfigurationNotEquals("mode", "replay"),
     )
 
     cmd_mux = Node(
-        condition=LaunchConfigurationNotEquals("mode", "replay"),
         package="romea_cmd_mux",
         executable="cmd_mux_node",
         name="cmd_mux",
