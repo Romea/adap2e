@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    update_rate: 5
+    update_rate: 20
     controller:
       base_frame_id: base_link
       odom_frame_id: odom

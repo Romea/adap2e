@@ -37,7 +37,7 @@ def launch_setup(context, *args, **kwargs):
         return []
 
     if mode == "simulation":
-        mode += "_gazebo_classic"
+        mode += "_gazebo_classic"   
 
     robot_model = LaunchConfiguration("robot_model").perform(context)
     robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
