@@ -4,6 +4,9 @@
   <xacro:macro name="adap2e" params="model mode prefix">
 
     <xacro:include filename="$(find romea_mobile_base_description)/urdf/base4WS4WD.chassis.xacro" />
+    <xacro:include filename="$(find adap2e_description)/urdf/visual/chassis.xacro" />
+    <xacro:include filename="$(find adap2e_description)/urdf/visual/wheels.xacro" />
+    <xacro:include filename="$(find adap2e_description)/urdf/visual/arms.xacro" />
 
     <xacro:property name="conf" value="$(find adap2e_description)/config/adap2e_${model}.yaml" />
     <xacro:property name="props" value="${load_yaml(conf)}" />
@@ -74,6 +77,8 @@
 
 
     <!-- Wheel Properties -->
+    <xacro:property name="front_wheel_x_offset" value="0.0" />
+    <xacro:property name="rear_wheel_x_offset" value="0.0" />
     <xacro:property name="front_hub_carrier_offset"
       value="${props['geometry']['front_axle']['wheels']['hub_carrier_offset']}" />
     <xacro:property name="rear_hub_carrier_offset"
@@ -108,29 +113,15 @@
     <xacro:property name="rear_wheel_steering_link_xz" value="0.05" />
 
     <xacro:chassis>
-
-      <!-- visual chassis -->
-      <visual>
-        <origin xyz="${-body_reference_x} 0 ${chassis_height}" rpy="0 0 ${M_PI/2.0}" />
-        <geometry>
-          <mesh filename="package://adap2e_description/meshes/framev3_05.dae" />
-        </geometry>
-        <material name="grey">
-          <color rgba="0.6 0.6 0.6 1" />
-        </material>
-      </visual>
-
-      <!-- front steering link geometry -->
-      <box
-        size="${front_wheel_steering_link_xz} ${front_wheel_steering_link_y} ${front_wheel_steering_link_xz}" />
-      <!-- front steering link geometry -->
-      <box
-        size="${rear_wheel_steering_link_xz} ${rear_wheel_steering_link_y} ${rear_wheel_steering_link_xz}" />
-      <!-- front wheel geometry -->
-      <mesh filename="package://adap2e_description/meshes/wheel_02.dae" />
-      <!-- rear wheel geometry -->
-      <mesh filename="package://adap2e_description/meshes/wheel_02.dae" />
-
+      <xacro:chassis_visual />
+      <xacro:front_left_arm_visual />
+      <xacro:front_right_arm_visual />
+      <xacro:rear_left_arm_visual />
+      <xacro:rear_right_arm_visual />
+      <xacro:front_left_wheel_visual />
+      <xacro:front_right_wheel_visual />
+      <xacro:rear_left_wheel_visual />
+      <xacro:rear_right_wheel_visual />
     </xacro:chassis>
 
   </xacro:macro>
