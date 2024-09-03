@@ -20,7 +20,7 @@
 #include <string>
 
 // romea
-#include "romea_mobile_base_hardware/hardware_info.hpp"
+#include "romea_mobile_base_utils/ros2_control/info/hardware_info_common.hpp"
 
 // ros
 #include "rclcpp/rclcpp.hpp"
@@ -124,8 +124,10 @@ hardware_interface::return_type Adap2eHardware::load_info_(
   RCLCPP_ERROR_STREAM(rclcpp::get_logger("Adap2eHardware"), "load_info");
 
   try {
-    front_wheel_radius_ = get_parameter<float>(hardware_info, "front_wheel_radius");
-    rear_wheel_radius_ = get_parameter<float>(hardware_info, "rear_wheel_radius");
+    // front_wheel_radius_ = get_parameter<float>(hardware_info, "front_wheel_radius");
+    // rear_wheel_radius_ = get_parameter<float>(hardware_info, "rear_wheel_radius");
+    front_wheel_radius_ = get_front_wheel_radius(hardware_info);
+    rear_wheel_radius_ = get_rear_wheel_radius(hardware_info);
     return hardware_interface::return_type::OK;
   } catch (std::runtime_error & e) {
     RCLCPP_FATAL_STREAM(rclcpp::get_logger("Adap2eHardware"), e.what());
@@ -221,13 +223,13 @@ void Adap2eHardware::set_hardware_state_()
   state.rearLeftWheelSpinningMotion.velocity = rear_left_wheel_linear_speed_measure_;
   state.rearRightWheelSpinningMotion.velocity = rear_right_wheel_linear_speed_measure_;
 
-  hardware_interface_->set_state(state);
+  hardware_interface_->set_feedback(state);
 }
 
 //-----------------------------------------------------------------------------
 void Adap2eHardware::get_hardware_command_()
 {
-  core::HardwareCommand4WS4WD command = hardware_interface_->get_command();
+  core::HardwareCommand4WS4WD command = hardware_interface_->get_hardware_command();
 
   front_left_wheel_steering_angle_command_ = command.frontLeftWheelSteeringAngle;
   front_right_wheel_steering_angle_command_ = command.frontRightWheelSteeringAngle;
