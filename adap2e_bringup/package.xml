@@ -18,7 +18,7 @@
   <depend>adap2e_description</depend>
 
   <exec_depend>romea_mobile_base</exec_depend>
-  <exec_depend>romea_simulation_gazebo</exec_depend>
+  <exec_depend>romea_simulation</exec_depend>
   <exec_depend>romea_teleop_drivers</exec_depend>
   <exec_depend>romea_joystick_bringup</exec_depend>
   <exec_depend>romea_cmd_mux</exec_depend>
