@@ -294,7 +294,7 @@ void Adap2eHardware::receive_data_()
           break;
       }
     } catch (const std::exception & ex) {
-      RCLCPP_WARN_STREAM(rclcpp::get_logger("Adap2eHardware"), "Error receiving CAN message");
+      RCLCPP_WARN_STREAM(rclcpp::get_logger("Adap2eHardware"), "receiving data: " << ex.what());
     }
   }
 }
@@ -310,11 +310,11 @@ bool Adap2eHardware::send_data_(uint32_t id)
   } catch (drivers::socketcan::SocketCanTimeout & e) {
     RCLCPP_ERROR_STREAM(
       rclcpp::get_logger("Adap2eHardware"),
-      "Send can data" << std::hex << id << " : timeout");
+      "Send can data" << std::hex << id << ": timeout");
   } catch (std::runtime_error & e) {
     RCLCPP_ERROR_STREAM(
       rclcpp::get_logger("Adap2eHardware"),
-      "Send can data" << std::hex << id << " : " << e.what());
+      "Send can data" << std::hex << id << ": " << e.what());
   }
   return false;
 }
