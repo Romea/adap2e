@@ -31,7 +31,7 @@ This project is released under the Apache License 2.0. See the LICENSE file for 
 
 ## **Authors**
 
- Adap2e project was developed by **Jean Laneurit** in the context of TIARA ANR project.
+ Adap2e project was developed by **Jean Laneurit** in the context of ADAP2E ANR project.
 
 ## **Contact**
 
