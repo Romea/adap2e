@@ -1,20 +1,21 @@
-# 1 Overview #
+# adp2e_description #
 
-This package contains the description of fat and slim adap2e robots
+## 1 Overview ##
 
-# 2 Package organization #
+This package contains the description of fat and slim adap2e robots and scripts to display them
+
+## 2 Package organization ##
 
 This package is organized into subdirectories as follows:
 
-  - urdf/ contains (xacro representations of) urdf descriptions of fat and slim adap2e robots.
+  - urdf/ contains xacro representations of fat and slim alpo robots.
 
-  - config/ contains characteristic of each robot:
+  - ros2_control/ contains urdf configuration for ros2 controller
+   
+  - config/ contains characteristics of each robot and teleop configuration 
 
-    - chassis description
-    - kinematic
-    - odometry
-    - joints and links names
+  - meshes/ contains meshes of chassis
 
-   - meshes/ constains meshes of chassis and wheels
+  - launch/ contains scripts to display robots and test joints
 
-   - launch/ contains scripts to display robots and test joints
+  - python/ contains a Python module able to create urdf for each robot
