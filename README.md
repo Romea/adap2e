@@ -1,4 +1,4 @@
-# Alpo #
+# adap2e #
 
 This project contains several ROS2 packages for working with Alpo robots, both in real-world applications and simulations. For more detailed information, please refer to the README files of each individual package.
 
@@ -7,10 +7,10 @@ This project contains several ROS2 packages for working with Alpo robots, both i
 1. create a ROS workspace
 2. cd worskpace
 3. mkdir src
-4. wget https://raw.githubusercontent.com/Romea/alpo/refs/heads/main/alpo_public.repos
-5. vcs import src < alpo_public.repos
+4. wget https://raw.githubusercontent.com/Romea/adap2e/refs/heads/main/adap2e_public.repos
+5. vcs import src < adap2e_public.repos
 6. colcon build
-7. see bringup package to launch Alpo robot
+7. see bringup package to launch Adap2e robot
 
 ## **Contributing**
 
@@ -31,8 +31,8 @@ This project is released under the Apache License 2.0. See the LICENSE file for 
 
 ## **Authors**
 
- Alpo project was developed by **Jean Laneurit** in the context of TIARA ANR project.
+ Adap2e project was developed by **Jean Laneurit** in the context of TIARA ANR project.
 
 ## **Contact**
 
-If you have any questions or comments about Alpo project, please contact **[Jean Laneurit](mailto:jean.laneurit@inrae.fr)** 
+If you have any questions or comments about Adap2e project, please contact **[Jean Laneurit](mailto:jean.laneurit@inrae.fr)** 
