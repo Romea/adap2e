@@ -31,7 +31,7 @@ wheels_steering_control:
 
 wheels_speed_control:
   command:
-    maximal_speed: 2.0
+    maximal_speed: 4.0
     maximal_acceleration: 1.0
   sensor:
     speed_std: 0.1
