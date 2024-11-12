@@ -1,4 +1,4 @@
-# adp2e_description #
+# adap2e_description #
 
 ## 1 Overview ##
 
