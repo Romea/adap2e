@@ -45,7 +45,7 @@ const uint32_t REAR_WHEEL_STEERING_ANGLES_MEASUREMENT_ID = 0x27;
 
 const uint32_t START_STOP_ID = 0x10;
 
-const std::chrono::milliseconds TIMEOUT(5);
+const std::chrono::milliseconds TIMEOUT(26);  // the average rate of messages is 47 Hz
 }  //  namespace
 
 
