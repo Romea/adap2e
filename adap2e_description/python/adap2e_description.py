@@ -14,13 +14,43 @@
 
 
 import xacro
+import yaml
 from ament_index_python.packages import get_package_share_directory
+from romea_mobile_base_description import (
+    get_command_limits,
+    get_command_type,
+    get_inertia,
+    get_wheelbase,
+    get_track,
+)
 
 
-def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_file, ros_prefix):
+def get_complete_configuration_path_file(robot_model):
+    return (
+        get_package_share_directory("adap2e_description")
+        + "/config/adap2e_"
+        + robot_model
+        + ".yaml"
+    )
 
-    if mode == "simulation":
-        mode += "_gazebo_classic"
+
+def get_complete_configuration(robot_model):
+    with open(get_complete_configuration_path_file(robot_model), "w") as f:
+        return yaml.safe_load(f)
+
+
+def get_minimal_configuration(robot_model):
+    complete_configuration = get_complete_configuration(robot_model)
+    return {
+        "command_type": get_command_type(complete_configuration),
+        "command_limits": get_command_limits(complete_configuration),
+        "inertia": get_inertia(complete_configuration),
+        "wheelbase": get_wheelbase(complete_configuration),
+        "track": get_track(complete_configuration),
+    }
+
+
+def ros2_control_urdf(prefix, mode, base_name, robot_model):
 
     ros2_control_xacro_file = (
         get_package_share_directory("adap2e_description")
@@ -38,10 +68,18 @@ def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_fi
         },
     )
 
-    ros2_control_config_urdf_file = "/tmp/"+prefix+base_name+"_ros2_control.urdf"
+    return ros2_control_urdf_xml.toprettyxml()
+
+
+def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_file, ros_prefix):
+
+    if mode == "simulation":
+        mode += "_gazebo_classic"
+
+    ros2_control_config_urdf_file = "/tmp/" + prefix + base_name + "_ros2_control.urdf"
 
     with open(ros2_control_config_urdf_file, "w") as f:
-        f.write(ros2_control_urdf_xml.toprettyxml())
+        f.write(ros2_control_urdf(prefix, mode, base_name, robot_model))
 
     base_xacro_file = (
         get_package_share_directory("adap2e_description")
@@ -58,7 +96,7 @@ def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_fi
             "base_name": base_name,
             "controller_manager_config_yaml_file": controller_manager_config_yaml_file,
             "ros2_control_config_urdf_file": ros2_control_config_urdf_file,
-            "ros_prefix": ros_prefix
+            "ros_prefix": ros_prefix,
         },
     )
 
