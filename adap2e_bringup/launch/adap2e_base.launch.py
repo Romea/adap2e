@@ -109,22 +109,22 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
     )
 
-    can_receiver = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [
-                PathJoinSubstitution(
-                    [
-                        FindPackageShare("ros2_socketcan"),
-                        "launch",
-                        "socket_can_receiver.launch.py",
-                    ]
-                )
-            ]
-        ),
-        launch_arguments={
-            "interface": "can0"
-        }.items(),
-    )
+    # can_receiver = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         [
+    #             PathJoinSubstitution(
+    #                 [
+    #                     FindPackageShare("ros2_socketcan"),
+    #                     "launch",
+    #                     "socket_can_receiver.launch.py",
+    #                 ]
+    #             )
+    #         ]
+    #     ),
+    #     launch_arguments={
+    #         "interface": "can0"
+    #     }.items(),
+    # )
 
     return [
         GroupAction(
@@ -132,7 +132,7 @@ def launch_setup(context, *args, **kwargs):
                 SetParameter(name="use_sim_time", value=(mode != "live")),
                 PushRosNamespace(robot_namespace),
                 PushRosNamespace(base_name),
-                can_receiver,
+                # can_receiver,
                 controller_manager,
                 controller,
                 cmd_mux,
