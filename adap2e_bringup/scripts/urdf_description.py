@@ -16,7 +16,7 @@
 
 
 from adap2e_bringup import urdf_description
-from romea_common_bringup import robot_urdf_prefix, robot_prefix
+from romea_common_meta_bringup import robot_urdf_prefix, robot_prefix
 import sys
 
 if __name__ == "__main__":

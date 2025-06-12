@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import yaml
 
 from launch import LaunchDescription
 
@@ -35,8 +34,7 @@ def launch_setup(context, *args, **kwargs):
     mode = LaunchConfiguration("mode").perform(context)
     robot_model = LaunchConfiguration("robot_model").perform(context)
     robot_urdf_description = LaunchConfiguration("robot_urdf_description").perform(context)
-    joystick_type = LaunchConfiguration("joystick_type").perform(context)
-    joystick_device = LaunchConfiguration("joystick_device").perform(context)
+    joystick_model = LaunchConfiguration("joystick_model").perform(context)
 
     robot = []
 
@@ -101,64 +99,31 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
-    teleop_configuration_file_path = (
-        get_package_share_directory("adap2e_description") + "/config/teleop.yaml"
+    joystick_configuration_file_path = (
+        get_package_share_directory("romea_joystick_utils") + "/config/" + joystick_model + ".yaml"
     )
 
     robot.append(
-        GroupAction(
-            actions=[
-                PushRosNamespace("adap2e"),
-                PushRosNamespace("base"),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        get_package_share_directory("adap2e_bringup")
-                        + "/launch/adap2e_teleop.launch.py"
-                    ),
-                    launch_arguments={
-                        "robot_model": robot_model,
-                        "joystick_type": joystick_type,
-                        "joystick_driver": "joy",
-                        "joystick_topic": "/adap2e/joystick/joy",
-                        "teleop_configuration_file_path": teleop_configuration_file_path,
-                    }.items(),
-                ),
-            ]
-        )
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                get_package_share_directory("adap2e_bringup")
+                + "/launch/adap2e_teleop.launch.py"
+            ),
+            launch_arguments={
+                "mode": mode,
+                "robot_model": robot_model,
+                "joystick_configuration_file_path": joystick_configuration_file_path,
+                "joystick_topic": "/adap2e/joystick/joy"
+            }.items(),
+        ),
     )
-
-    joy_params_path = '/tmp/joy_parameters.yaml'
-    joy_params = {
-        'dead_zone': 0.05,
-        'autorepeat_rate': 10.0,
-        'frame_id': 'joy',
-    }
-    with open(joy_params_path, 'w') as file:
-        file.write(yaml.safe_dump(joy_params))
 
     robot.append(
         GroupAction(
             actions=[
                 PushRosNamespace("adap2e"),
                 PushRosNamespace("joystick"),
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource(
-                        [
-                            PathJoinSubstitution(
-                                [
-                                    FindPackageShare("romea_joystick_bringup"),
-                                    "launch",
-                                    "drivers/joy.launch.py",
-                                ]
-                            )
-                        ]
-                    ),
-                    launch_arguments={
-                        'executable': 'joy_node',
-                        'config_path': joy_params_path,
-                        'frame_id': joy_params['frame_id'],
-                    }.items(),
-                ),
+                Node(package="joy", executable="joy_node")
             ]
         )
     )
@@ -191,10 +156,8 @@ def generate_launch_description():
         DeclareLaunchArgument("robot_urdf_description", default_value=urdf_description)
     )
 
-    declared_arguments.append(DeclareLaunchArgument("joystick_type", default_value="xbox"))
-
     declared_arguments.append(
-        DeclareLaunchArgument("joystick_device", default_value="/dev/input/js0")
+        DeclareLaunchArgument("joystick_model", default_value="microsoft_xbox")
     )
 
     return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
