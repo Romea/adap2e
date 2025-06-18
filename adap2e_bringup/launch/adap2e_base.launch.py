@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from launch import LaunchDescription  # , LaunchContext
+from launch import LaunchDescription
 
 from launch.actions import (
     IncludeLaunchDescription,
@@ -23,10 +23,9 @@ from launch.actions import (
 )
 
 from launch.conditions import IfCondition
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node, SetParameter, PushRosNamespace
-from launch_ros.substitutions import FindPackageShare
+from launch_ros.actions import Node, SetParameter
 from ament_index_python.packages import get_package_share_directory
 
 
@@ -37,36 +36,25 @@ def launch_setup(context, *args, **kwargs):
         return []
 
     if mode == "simulation":
-        mode += "_gazebo_classic"   
+        mode += "_gazebo_classic"
 
     robot_model = LaunchConfiguration("robot_model").perform(context)
-    robot_namespace = LaunchConfiguration("robot_namespace").perform(context)
-    base_name = LaunchConfiguration("base_name").perform(context)
+    tf_prefix = LaunchConfiguration("tf_prefix").perform(context)
 
-    if robot_namespace:
-        controller_manager_name = "/" + robot_namespace + "/" + base_name + "/controller_manager"
-        robot_prefix = robot_namespace + "_"
-    else:
-        controller_manager_name = "/" + base_name + "/controller_manager"
-        robot_prefix = ""
-
-    base_description_yaml_file = (
-        get_package_share_directory("adap2e_description")
-        + "/config/adap2e_"
-        + robot_model
-        + ".yaml"
+    base_configuration_file_path = (
+        f'{get_package_share_directory("adap2e_description")}/config/adap2e_{robot_model}.yaml'
     )
 
-    controller_manager_yaml_file = (
-        get_package_share_directory("adap2e_bringup") + "/config/controller_manager.yaml"
+    controller_manager_configuration_file_path = (
+        f'{get_package_share_directory("adap2e_bringup")}/config/controller_manager.yaml'
     )
 
-    base_controller_yaml_file = (
-        get_package_share_directory("adap2e_bringup") + "/config/mobile_base_controller.yaml"
+    base_controller_configuration_file_path = (
+        f'{get_package_share_directory("adap2e_bringup")}/config/mobile_base_controller.yaml'
     )
 
-    base_ros2_control_description_file = "/tmp/" + robot_prefix + base_name + "_ros2_control.urdf"
-    with open(base_ros2_control_description_file, "r") as f:
+    base_ros2_control_description_file_path = f"/tmp/{tf_prefix}base_ros2_control.urdf"
+    with open(base_ros2_control_description_file_path, "r") as f:
         base_ros2_control_description = f.read()
 
     controller_manager = Node(
@@ -75,28 +63,20 @@ def launch_setup(context, *args, **kwargs):
         executable="ros2_control_node",
         parameters=[
             {"robot_description": base_ros2_control_description},
-            controller_manager_yaml_file,
+            controller_manager_configuration_file_path,
         ],
     )
 
     controller = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [
-                PathJoinSubstitution(
-                    [
-                        FindPackageShare("romea_mobile_base_controllers"),
-                        "launch",
-                        "mobile_base_controller.launch.py",
-                    ]
-                )
-            ]
+            get_package_share_directory("romea_mobile_base_controllers")
+            + "/launch/mobile_base_controller.launch.py"
         ),
         launch_arguments={
-            "joints_prefix": robot_prefix,
+            "joints_prefix": tf_prefix,
             "controller_name": "mobile_base_controller",
-            "controller_manager_name": controller_manager_name,
-            "base_description_yaml_filename": base_description_yaml_file,
-            "base_controller_yaml_filename": base_controller_yaml_file,
+            "base_configuration_file_path": base_configuration_file_path,
+            "base_controller_configuration_file_path": base_controller_configuration_file_path,
         }.items(),
     )
 
@@ -130,8 +110,6 @@ def launch_setup(context, *args, **kwargs):
         GroupAction(
             actions=[
                 SetParameter(name="use_sim_time", value=(mode != "live")),
-                PushRosNamespace(robot_namespace),
-                PushRosNamespace(base_name),
                 # can_receiver,
                 controller_manager,
                 controller,
@@ -143,14 +121,11 @@ def launch_setup(context, *args, **kwargs):
 
 def generate_launch_description():
 
-    declared_arguments = []
-
-    declared_arguments.append(DeclareLaunchArgument("mode"))
-
-    declared_arguments.append(DeclareLaunchArgument("robot_model"))
-
-    declared_arguments.append(DeclareLaunchArgument("robot_namespace", default_value="adap2e"))
-
-    declared_arguments.append(DeclareLaunchArgument("base_name", default_value="base"))
-
-    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
+    return LaunchDescription(
+        [
+            DeclareLaunchArgument("mode"),
+            DeclareLaunchArgument("robot_model"),
+            DeclareLaunchArgument("tf_prefix", default_value=""),
+            OpaqueFunction(function=launch_setup)
+        ]
+    )

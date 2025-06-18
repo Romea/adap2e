@@ -17,7 +17,7 @@ install(
 ament_python_install_module(python/adap2e_bringup.py)
 
 install(PROGRAMS
-  scripts/urdf_description.py
+  scripts/generate_urdf_description.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

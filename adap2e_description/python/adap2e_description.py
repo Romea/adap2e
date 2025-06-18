@@ -76,7 +76,7 @@ def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_fi
     if mode == "simulation":
         mode += "_gazebo_classic"
 
-    ros2_control_config_urdf_file = "/tmp/" + prefix + base_name + "_ros2_control.urdf"
+    ros2_control_config_urdf_file = "/tmp/" + prefix + "base_ros2_control.urdf"
 
     with open(ros2_control_config_urdf_file, "w") as f:
         f.write(ros2_control_urdf(prefix, mode, base_name, robot_model))

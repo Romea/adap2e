@@ -24,7 +24,7 @@ import xml.etree.ElementTree as ET
 def urdf_xml(mode, model):
 
     exe = (
-        get_package_prefix("adap2e_bringup") + "/lib/adap2e_bringup/urdf_description.py"
+        get_package_prefix("adap2e_bringup") + "/lib/adap2e_bringup/generate_urdf_description.py"
     )
 
     return ET.fromstring(

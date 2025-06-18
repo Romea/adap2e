@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-from adap2e_bringup import urdf_description
+from adap2e_bringup import generate_urdf_description
 from romea_common_meta_bringup import robot_urdf_prefix, robot_prefix
 import sys
 
@@ -33,4 +33,4 @@ if __name__ == "__main__":
     robot_model = parameters["robot_model"]
     prefix = robot_urdf_prefix(parameters["robot_namespace"])
     ros_prefix = robot_prefix(parameters["robot_namespace"])
-    print(urdf_description(prefix, mode, base_name, robot_model, ros_prefix))
+    print(generate_urdf_description(prefix, mode, base_name, robot_model, ros_prefix))

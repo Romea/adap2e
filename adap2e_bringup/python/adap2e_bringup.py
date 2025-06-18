@@ -17,7 +17,7 @@ from ament_index_python.packages import get_package_share_directory
 from adap2e_description import urdf
 
 
-def urdf_description(prefix, mode, base_name, robot_model, ros_prefix):
+def generate_urdf_description(prefix, mode, base_name, robot_model, ros_prefix):
 
     controller_manager_yaml_file = (
         get_package_share_directory("adap2e_bringup")
