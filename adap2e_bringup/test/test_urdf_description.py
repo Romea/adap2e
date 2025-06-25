@@ -24,12 +24,19 @@ import xml.etree.ElementTree as ET
 def urdf_xml(mode, model):
 
     exe = (
-        get_package_prefix("adap2e_bringup") + "/lib/adap2e_bringup/generate_urdf_description.py"
+        get_package_prefix("adap2e_bringup")
+        + "/lib/adap2e_bringup/generate_ros2_control_description.py"
     )
 
     return ET.fromstring(
         subprocess.check_output(
-            [exe, "mode:" + mode, "robot_model:" + model, "base_name:base", "robot_namespace:robot"],
+            [
+                exe,
+                "mode:" + mode,
+                "robot_model:" + model,
+                "base_name:base",
+                "robot_namespace:robot",
+            ],
             encoding="utf-8",
         )
     )

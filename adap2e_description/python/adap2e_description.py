@@ -52,6 +52,9 @@ def get_minimal_configuration(robot_model):
 
 def generate_ros2_control_description(prefix, mode, base_name, robot_model):
 
+    if mode == "simulation":
+        mode += "_gazebo_classic"
+
     ros2_control_xacro_file = (
         get_package_share_directory("adap2e_description")
         + "/ros2_control/adap2e_"

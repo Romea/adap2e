@@ -15,7 +15,7 @@
 
 # import pytest
 import xml.etree.ElementTree as ET
-from adap2e_description import urdf
+from adap2e_description import generate_urdf_description, generate_ros2_control_description
 
 
 def urdf_xml(mode, model):
@@ -25,12 +25,41 @@ def urdf_xml(mode, model):
     controller_conf_yaml_file = mode + "_" + model + "_controller.yaml"
 
     return ET.fromstring(
-        urdf(prefix, mode, base_name, model, controller_conf_yaml_file, ros_prefix)
+        generate_urdf_description(
+            prefix, mode, base_name, model, controller_conf_yaml_file, ros_prefix
+        )
+    )
+
+
+def ros2_control_xml(mode, model):
+    prefix = "robot_"
+    base_name = "base"
+
+    return ET.fromstring(
+        generate_ros2_control_description(
+            prefix, mode, base_name, model
+        )
     )
 
 
 def test_footprint_link_name():
     assert urdf_xml("live", "one").find("link").get("name") == "robot_base_footprint"
+
+
+def test_controller_filename_name():
+
+    assert (
+        urdf_xml("simulation", "slim").find("gazebo/plugin/parameters").text
+        == "simulation_slim_controller.yaml"
+    )
+
+
+def test_ros_namespace():
+
+    assert (
+        urdf_xml("simulation", "slim").find("gazebo/plugin/ros/namespace").text
+        == "/adap2e/base"
+    )
 
 
 def test_hardware_plugin_name():
