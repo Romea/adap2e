@@ -14,7 +14,13 @@
 
 
 from ament_index_python.packages import get_package_share_directory
-from adap2e_description import urdf
+import adap2e_description
+
+
+def generate_ros2_control_description(prefix, mode, base_name, robot_model):
+    return adap2e_description.generate_ros2_control_description(
+        prefix, mode, base_name, robot_model
+    )
 
 
 def generate_urdf_description(prefix, mode, base_name, robot_model, ros_prefix):
@@ -24,4 +30,6 @@ def generate_urdf_description(prefix, mode, base_name, robot_model, ros_prefix):
         + "/config/controller_manager.yaml"
     )
 
-    return urdf(prefix, mode, base_name, robot_model, controller_manager_yaml_file, ros_prefix)
+    return adap2e_description.generate_urdf_description(
+        prefix, mode, base_name, robot_model, controller_manager_yaml_file, ros_prefix
+    )

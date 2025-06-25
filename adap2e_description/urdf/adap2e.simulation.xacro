@@ -2,15 +2,17 @@
 <robot name="adap2e_fat" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:macro name="adap2e_simulation"
-    params="mode ros_prefix base_name ros2_control_config_urdf_file controller_manager_config_yaml_file">
+    params="mode ros_prefix base_name controller_manager_config_yaml_file">
 
     <xacro:if value="${'simulation' in mode}">
       <xacro:if value="${'gazebo' in  mode}">
 
         <gazebo>
-          <plugin filename="libromea_gazebo_ros2_control.so" name="gazebo_ros2_control">
-            <ros2_control_config_file>${ros2_control_config_urdf_file}</ros2_control_config_file>
-            <controller_manager_config_file>${controller_manager_config_yaml_file}</controller_manager_config_file>
+          <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+            <robot_param>robot_description</robot_param>
+            <robot_param_node>ros2_control_description</robot_param_node>
+            <parameters>${controller_manager_config_yaml_file}</parameters>
+            <hold_joints>true</hold_joints>
             <ros>
               <namespace>${ros_prefix}${base_name}</namespace>
             </ros>

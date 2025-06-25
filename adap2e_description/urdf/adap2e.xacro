@@ -9,7 +9,7 @@
     <xacro:include filename="$(find adap2e_description)/urdf/visual/arms.xacro" />
 
     <xacro:property name="conf" value="$(find adap2e_description)/config/adap2e_${model}.yaml" />
-    <xacro:property name="props" value="${load_yaml(conf)}" />
+    <xacro:property name="props" value="${xacro.load_yaml(conf)}" />
 
     <!-- Link names -->
     <xacro:property name="base_link" value="${props['links']['base_link_name']}" />

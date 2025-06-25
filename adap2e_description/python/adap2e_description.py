@@ -50,7 +50,7 @@ def get_minimal_configuration(robot_model):
     }
 
 
-def ros2_control_urdf(prefix, mode, base_name, robot_model):
+def generate_ros2_control_description(prefix, mode, base_name, robot_model):
 
     ros2_control_xacro_file = (
         get_package_share_directory("adap2e_description")
@@ -68,18 +68,15 @@ def ros2_control_urdf(prefix, mode, base_name, robot_model):
         },
     )
 
-    return ros2_control_urdf_xml.toprettyxml()
+    return ros2_control_urdf_xml.toprettyxml(indent="  ")
 
 
-def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_file, ros_prefix):
+def generate_urdf_description(
+        prefix, mode, base_name, robot_model, controller_manager_config_yaml_file, ros_prefix
+):
 
     if mode == "simulation":
         mode += "_gazebo_classic"
-
-    ros2_control_config_urdf_file = "/tmp/" + prefix + "base_ros2_control.urdf"
-
-    with open(ros2_control_config_urdf_file, "w") as f:
-        f.write(ros2_control_urdf(prefix, mode, base_name, robot_model))
 
     base_xacro_file = (
         get_package_share_directory("adap2e_description")
@@ -95,9 +92,8 @@ def urdf(prefix, mode, base_name, robot_model, controller_manager_config_yaml_fi
             "mode": mode,
             "base_name": base_name,
             "controller_manager_config_yaml_file": controller_manager_config_yaml_file,
-            "ros2_control_config_urdf_file": ros2_control_config_urdf_file,
-            "ros_prefix": ros_prefix,
+            # "ros_prefix": ros_prefix,
         },
     )
 
-    return base_urdf_xml.toprettyxml()
+    return base_urdf_xml.toprettyxml(indent="  ")

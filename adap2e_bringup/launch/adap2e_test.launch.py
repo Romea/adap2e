@@ -69,6 +69,7 @@ def launch_setup(context, *args, **kwargs):
             "mode": mode,
             "tf_prefix": "adap2e_",
             "robot_model": robot_model,
+            "base_name": "base",
         }.items(),
     )
 

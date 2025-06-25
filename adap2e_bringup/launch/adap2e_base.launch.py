@@ -27,6 +27,7 @@ from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node, SetParameter
 from ament_index_python.packages import get_package_share_directory
+from adap2e_bringup import generate_ros2_control_description
 
 
 def launch_setup(context, *args, **kwargs):
@@ -40,6 +41,7 @@ def launch_setup(context, *args, **kwargs):
 
     robot_model = LaunchConfiguration("robot_model").perform(context)
     tf_prefix = LaunchConfiguration("tf_prefix").perform(context)
+    base_name = LaunchConfiguration("base_name").perform(context)
 
     base_configuration_file_path = (
         f'{get_package_share_directory("adap2e_description")}/config/adap2e_{robot_model}.yaml'
@@ -53,16 +55,24 @@ def launch_setup(context, *args, **kwargs):
         f'{get_package_share_directory("adap2e_bringup")}/config/mobile_base_controller.yaml'
     )
 
-    base_ros2_control_description_file_path = f"/tmp/{tf_prefix}base_ros2_control.urdf"
-    with open(base_ros2_control_description_file_path, "r") as f:
-        base_ros2_control_description = f.read()
+    ros2_control_description_node = Node(
+        package="romea_common_meta_bringup",
+        executable="urdf_broadcaster_node",
+        name="ros2_control_description",
+        parameters=[
+            {
+                "robot_description":
+                generate_ros2_control_description(tf_prefix, mode, base_name, robot_model),
+            }
+        ],
+    )
 
     controller_manager = Node(
         condition=IfCondition(PythonExpression(["'gazebo' not in '", mode, "'"])),
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
-            {"robot_description": base_ros2_control_description},
+            # {"robot_description": base_ros2_control_description},
             controller_manager_configuration_file_path,
         ],
     )
@@ -111,6 +121,7 @@ def launch_setup(context, *args, **kwargs):
             actions=[
                 SetParameter(name="use_sim_time", value=(mode != "live")),
                 # can_receiver,
+                ros2_control_description_node,
                 controller_manager,
                 controller,
                 cmd_mux,
@@ -126,6 +137,7 @@ def generate_launch_description():
             DeclareLaunchArgument("mode"),
             DeclareLaunchArgument("robot_model"),
             DeclareLaunchArgument("tf_prefix", default_value=""),
-            OpaqueFunction(function=launch_setup)
+            DeclareLaunchArgument("base_name", default_value="base"),
+            OpaqueFunction(function=launch_setup),
         ]
     )
