@@ -16,7 +16,9 @@
 import xacro
 import yaml
 from ament_index_python.packages import get_package_share_directory
+from romea_common_description import generate_configuration_file
 from romea_mobile_base_description import (
+    get_specification_units,
     get_command_limits,
     get_command_type,
     get_inertia,
@@ -25,7 +27,7 @@ from romea_mobile_base_description import (
 )
 
 
-def get_complete_configuration_path_file(robot_model):
+def get_adap2e_specifications_path_file(robot_model):
     return (
         get_package_share_directory("adap2e_description")
         + "/config/adap2e_"
@@ -34,13 +36,14 @@ def get_complete_configuration_path_file(robot_model):
     )
 
 
-def get_complete_configuration(robot_model):
-    with open(get_complete_configuration_path_file(robot_model), "w") as f:
+def get_adap2e_specifications_configuration(robot_model):
+    print(get_adap2e_specifications_path_file(robot_model))
+    with open(get_adap2e_specifications_path_file(robot_model), "r") as f:
         return yaml.safe_load(f)
 
 
-def get_minimal_configuration(robot_model):
-    complete_configuration = get_complete_configuration(robot_model)
+def get_adap2e_configuration(robot_model):
+    complete_configuration = get_adap2e_specifications_configuration(robot_model)
     return {
         "command_type": get_command_type(complete_configuration),
         "command_limits": get_command_limits(complete_configuration),
@@ -48,6 +51,11 @@ def get_minimal_configuration(robot_model):
         "wheelbase": get_wheelbase(complete_configuration),
         "track": get_track(complete_configuration),
     }
+
+
+def generate_adap2e_configuration_file(configuration, extended):
+    units = get_specification_units()
+    return generate_configuration_file(configuration, units, extended)
 
 
 def generate_ros2_control_description(prefix, mode, base_name, robot_model):
