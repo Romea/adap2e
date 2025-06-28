@@ -44,6 +44,9 @@ def get_specifications_configuration(robot_model):
 def get_configuration(robot_model):
     complete_configuration = get_specifications_configuration(robot_model)
     return {
+        "model": "adap2e",
+        "version": robot_model,
+        "manufacturer": "sabi-agri",
         "command_type": get_command_type(complete_configuration),
         "command_limits": get_command_limits(complete_configuration),
         "inertia": get_inertia(complete_configuration),
