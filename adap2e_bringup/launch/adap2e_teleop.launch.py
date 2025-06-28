@@ -26,7 +26,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import SetParameter
 
 from ament_index_python.packages import get_package_share_directory
-from adap2e_description import get_complete_configuration_path_file
+from adap2e_description import get_specifications_path_file
 
 
 def launch_setup(context, *args, **kwargs):
@@ -35,7 +35,7 @@ def launch_setup(context, *args, **kwargs):
     robot_model = LaunchConfiguration("robot_model").perform(context)
     joystick_topic = LaunchConfiguration("joystick_topic").perform(context)
 
-    mobile_base_configuration_file_path = get_complete_configuration_path_file(robot_model)
+    mobile_base_configuration_file_path = get_specifications_path_file(robot_model)
 
     joystick_configuration_file_path = LaunchConfiguration(
         "joystick_configuration_file_path"

@@ -17,9 +17,13 @@ from ament_index_python.packages import get_package_share_directory
 import adap2e_description
 
 
+def get_configuration(robot_model):
+    return adap2e_description.get_configuration(robot_model)
+
+
 def generate_configuration_file(robot_model, extended):
-    configuration = adap2e_description.get_adap2e_configuration(robot_model)
-    return adap2e_description.generate_adap2e_configuration_file(configuration, extended)
+    configuration = get_configuration(robot_model)
+    return adap2e_description.generate_configuration_file(configuration, extended)
 
 
 def generate_ros2_control_description(prefix, mode, base_name, robot_model):
