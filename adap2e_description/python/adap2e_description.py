@@ -16,7 +16,9 @@
 import xacro
 import yaml
 from ament_index_python.packages import get_package_share_directory
-from romea_common_description import generate_configuration_file
+
+import romea_common_description
+
 from romea_mobile_base_description import (
     get_specification_units,
     get_command_limits,
@@ -24,6 +26,7 @@ from romea_mobile_base_description import (
     get_inertia,
     get_wheelbase,
     get_track,
+    get_type
 )
 
 
@@ -42,22 +45,24 @@ def get_specifications_configuration(robot_model):
 
 
 def get_configuration(robot_model):
-    complete_configuration = get_specifications_configuration(robot_model)
+    specifications = get_specifications_configuration(robot_model)
     return {
+
         "model": "adap2e",
         "version": robot_model,
         "manufacturer": "sabi-agri",
-        "command_type": get_command_type(complete_configuration),
-        "command_limits": get_command_limits(complete_configuration),
-        "inertia": get_inertia(complete_configuration),
-        "wheelbase": get_wheelbase(complete_configuration),
-        "track": get_track(complete_configuration),
+        "type": get_type(specifications),
+        "command_type": get_command_type(specifications),
+        "command_limits": get_command_limits(specifications),
+        "inertia": get_inertia(specifications),
+        "wheelbase": get_wheelbase(specifications),
+        "track": get_track(specifications),
     }
 
 
 def generate_configuration_file(configuration, extended):
     units = get_specification_units()
-    return generate_configuration_file(configuration, units, extended)
+    return romea_common_description.generate_configuration_file(configuration, units, extended)
 
 
 def generate_ros2_control_description(prefix, mode, base_name, robot_model):
