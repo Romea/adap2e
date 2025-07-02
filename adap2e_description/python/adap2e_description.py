@@ -18,16 +18,7 @@ import yaml
 from ament_index_python.packages import get_package_share_directory
 
 import romea_common_description
-
-from romea_mobile_base_description import (
-    get_specification_units,
-    get_command_limits,
-    get_command_type,
-    get_inertia,
-    get_wheelbase,
-    get_track,
-    get_type
-)
+from romea_mobile_base_description import get_specification_units, get_complete_configuration
 
 
 def get_specifications_path_file(robot_model):
@@ -46,18 +37,11 @@ def get_specifications_configuration(robot_model):
 
 def get_configuration(robot_model):
     specifications = get_specifications_configuration(robot_model)
-    return {
-
-        "model": "adap2e",
-        "version": robot_model,
-        "manufacturer": "sabi-agri",
-        "type": get_type(specifications),
-        "command_type": get_command_type(specifications),
-        "command_limits": get_command_limits(specifications),
-        "inertia": get_inertia(specifications),
-        "wheelbase": get_wheelbase(specifications),
-        "track": get_track(specifications),
-    }
+    configuration = get_complete_configuration(specifications)
+    configuration["model"] = "adap2e"
+    configuration["version"] = robot_model
+    configuration["manufacturer"] = "sabi-agri"
+    return configuration
 
 
 def generate_configuration_file(configuration, extended):
