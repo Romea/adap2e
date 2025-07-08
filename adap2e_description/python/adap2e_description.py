@@ -40,7 +40,7 @@ def get_configuration(robot_model):
     configuration = get_complete_configuration(specifications)
     configuration["model"] = "adap2e"
     configuration["version"] = robot_model
-    configuration["manufacturer"] = "sabi-agri"
+    configuration["manufacturer"] = "inrae"
     return configuration
 
 

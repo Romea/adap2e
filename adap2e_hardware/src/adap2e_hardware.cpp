@@ -136,13 +136,9 @@ hardware_interface::return_type Adap2eHardware::load_info_(
 }
 
 //-----------------------------------------------------------------------------
-#if ROS_DISTRO == ROS_GALACTIC
-hardware_interface::return_type Adap2eHardware::read()
-#else
 hardware_interface::return_type Adap2eHardware::read(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & /*period*/)
-#endif
 {
   //  RCLCPP_INFO(rclcpp::get_logger("Adap2eHardware"), "Read data from robot");
 
@@ -168,13 +164,9 @@ hardware_interface::return_type Adap2eHardware::read(
 }
 
 //-----------------------------------------------------------------------------
-#if ROS_DISTRO == ROS_GALACTIC
-hardware_interface::return_type Adap2eHardware::write()
-# else
 hardware_interface::return_type Adap2eHardware::write(
   const rclcpp::Time & /*time*/,
   const rclcpp::Duration & /*period*/)
-#endif
 {
   //  RCLCPP_INFO(rclcpp::get_logger("Adap2eHardware"), "Send command to robot");
 
