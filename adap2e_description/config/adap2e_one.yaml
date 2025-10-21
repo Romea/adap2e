@@ -1,19 +1,19 @@
 # kinematic: four_wheel_steering
 type: 4WS4WD
 geometry:
-  axles_distance: 1.38
+  axles_distance: 1.34
   front_axle:
-    wheels_distance: 0.89
+    wheels_distance: 0.70
     wheels:
       radius: 0.325
       width: 0.13
-      hub_carrier_offset: 0.148
+      hub_carrier_offset: 0.125
   rear_axle:
-    wheels_distance: 0.89
+    wheels_distance: 0.70
     wheels:
       radius: 0.325
       width: 0.13
-      hub_carrier_offset: 0.148
+      hub_carrier_offset: 0.125
   aabb:
     length: 2.3490
     width: 0.7000
