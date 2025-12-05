@@ -5,4 +5,3 @@ include:
 
 variables:
   PKGS_TO_BUILD_TEST: "adap2e_bringup adap2e_description adap2e_hardware"
-  ROS_DISTRO_TO_TEST: "humble"
