@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-# import pytest
 import xml.etree.ElementTree as ET
-from adap2e_description import generate_urdf_description, generate_ros2_control_description
+
+from adap2e_description import generate_ros2_control_description, generate_urdf_description
 
 
 def urdf_xml(mode, model):

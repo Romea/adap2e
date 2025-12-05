@@ -12,38 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-
-from launch.actions import (
-    IncludeLaunchDescription,
-    DeclareLaunchArgument,
-    OpaqueFunction,
-    GroupAction,
-)
-
-from launch.substitutions import Command, LaunchConfiguration
+from launch.actions import GroupAction, IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node, PushRosNamespace
-from launch_ros.substitutions import ExecutableInPackage
-from ament_index_python.packages import get_package_share_directory
+
+import romea_common_meta_bringup.ros_launch as common
+import romea_joystick_meta_bringup.ros_launch as joystick
 
 
 def launch_setup(context, *args, **kwargs):
 
-    mode = LaunchConfiguration("mode").perform(context)
-    robot_model = LaunchConfiguration("robot_model").perform(context)
-    robot_urdf_description = LaunchConfiguration("robot_urdf_description").perform(context)
+    mode = common.get_mode(context)
+    robot_model = common.get_robot_model(context)
 
     joystick_configuration_file_path = (
         get_package_share_directory("romea_joystick_utils")
-        + "/config/" + LaunchConfiguration("joystick_model").perform(context) + ".yaml"
+        + "/config/" + joystick.get_joystick_model(context) + ".yaml"
     )
 
     robot = []
-
-    if mode == "simulation":
-        mode += "_gazebo_classic"
 
     if "simulation" in mode:
 
@@ -56,26 +46,29 @@ def launch_setup(context, *args, **kwargs):
                 launch_arguments={
                     "mode": mode,
                     "robot_model": robot_model,
-                    "robot_urdf_description": robot_urdf_description,
+                    "robot_namespace": "adap2e",
+                    "base_name": "base",
                 }.items(),
             )
         )
 
     base = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_package_share_directory("adap2e_bringup") + "/launch/adap2e_base.launch.py"
+            get_package_share_directory("adap2e_bringup")
+            + "/launch/adap2e_base.launch.py"
         ),
         launch_arguments={
             "mode": mode,
-            "tf_prefix": "adap2e_",
             "robot_model": robot_model,
+            "robot_namespace": "adap2e",
             "base_name": "base",
         }.items(),
     )
 
     teleop = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_package_share_directory("adap2e_bringup") + "/launch/adap2e_teleop.launch.py"
+            get_package_share_directory("adap2e_bringup")
+            + "/launch/adap2e_teleop.launch.py"
         ),
         launch_arguments={
             "mode": mode,
@@ -111,25 +104,11 @@ def launch_setup(context, *args, **kwargs):
 
 def generate_launch_description():
 
-    urdf_description = Command(
-        [
-            ExecutableInPackage("generate_urdf_description.py", "adap2e_bringup"),
-            " robot_namespace:adap2e",
-            " robot_model:",
-            LaunchConfiguration("robot_model"),
-            " base_name:base",
-            " mode:",
-            LaunchConfiguration("mode"),
-        ],
-        on_stderr="ignore",
-    )
-
     return LaunchDescription(
         [
-            DeclareLaunchArgument("mode", default_value="simulation"),
-            DeclareLaunchArgument("robot_model", default_value="fat"),
-            DeclareLaunchArgument("robot_urdf_description", default_value=urdf_description),
-            DeclareLaunchArgument("joystick_model", default_value="microsoft_xbox"),
+            common.declare_mode("simulation"),
+            common.declare_robot_model(["fat", "slim"], "fat"),
+            joystick.declare_joystick_model("microsoft_xbox"),
             OpaqueFunction(function=launch_setup),
         ]
     )

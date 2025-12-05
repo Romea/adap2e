@@ -13,8 +13,8 @@
 # limitations under the License.
 
 
-from ament_index_python.packages import get_package_share_directory
 import adap2e_description
+from ament_index_python.packages import get_package_share_directory
 
 
 def get_configuration(robot_model):

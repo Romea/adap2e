@@ -5,7 +5,8 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 ${orientation} 0" />
             <geometry>
-                <mesh filename="package://adap2e_description/meshes/wheel_02.dae" />
+                <!-- <mesh filename="package://adap2e_description/meshes/wheel_02.dae" /> -->
+                <mesh filename="file://$(find adap2e_description)/meshes/wheel_02.dae" />
             </geometry>
             <material name="black">
                 <color rgba="0 0 0 1" />

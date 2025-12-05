@@ -12,36 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-
-from launch.actions import (
-    IncludeLaunchDescription,
-    DeclareLaunchArgument,
-    OpaqueFunction,
-    GroupAction,
-)
-
+from launch.actions import GroupAction, IncludeLaunchDescription, OpaqueFunction
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import PythonExpression
 from launch_ros.actions import Node, SetParameter
-from ament_index_python.packages import get_package_share_directory
-from adap2e_bringup import generate_ros2_control_description
+
+import romea_common_meta_bringup.ros_launch as common
+import romea_common_meta_bringup.utils as utils
+import romea_mobile_base_meta_bringup.ros_launch as mobile_base
 
 
 def launch_setup(context, *args, **kwargs):
 
-    mode = LaunchConfiguration("mode").perform(context)
+    mode = common.get_mode(context)
     if "replay" in mode:
         return []
 
-    if mode == "simulation":
-        mode += "_gazebo_classic"
-
-    robot_model = LaunchConfiguration("robot_model").perform(context)
-    tf_prefix = LaunchConfiguration("tf_prefix").perform(context)
-    base_name = LaunchConfiguration("base_name").perform(context)
+    robot_model = common.get_robot_model(context)
+    robot_namespace = common.get_robot_namespace(context)
+    robot_urdf_description = common.get_robot_urdf_description(context)
+    robot_ros2_control_description = common.get_robot_ros2_control_description(context)
 
     base_configuration_file_path = (
         f'{get_package_share_directory("adap2e_description")}/config/adap2e_{robot_model}.yaml'
@@ -61,8 +55,9 @@ def launch_setup(context, *args, **kwargs):
         name="ros2_control_description",
         parameters=[
             {
-                "robot_description":
-                generate_ros2_control_description(tf_prefix, mode, base_name, robot_model),
+                "robot_description": utils.complete_robot_description(
+                    robot_urdf_description, [robot_ros2_control_description]
+                )
             }
         ],
     )
@@ -72,7 +67,6 @@ def launch_setup(context, *args, **kwargs):
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
-            # {"robot_description": base_ros2_control_description},
             controller_manager_configuration_file_path,
         ],
     )
@@ -83,7 +77,7 @@ def launch_setup(context, *args, **kwargs):
             + "/launch/mobile_base_controller.launch.py"
         ),
         launch_arguments={
-            "joints_prefix": tf_prefix,
+            "joints_prefix": utils.robot_urdf_prefix(robot_namespace),
             "controller_name": "mobile_base_controller",
             "base_configuration_file_path": base_configuration_file_path,
             "base_controller_configuration_file_path": base_controller_configuration_file_path,
@@ -134,10 +128,16 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            DeclareLaunchArgument("mode"),
-            DeclareLaunchArgument("robot_model"),
-            DeclareLaunchArgument("tf_prefix", default_value=""),
-            DeclareLaunchArgument("base_name", default_value="base"),
+            common.declare_mode(),
+            common.declare_robot_model(["fat", "slim"]),
+            common.declare_robot_namespace(),
+            mobile_base.declare_base_name("base"),
+            common.declare_robot_urdf_description(
+                common.generate_robot_urdf_description("adap2e_bringup")
+            ),
+            common.declare_robot_ros2_control_description(
+                common.generate_robot_ros2_control_description("adap2e_bringup")
+            ),
             OpaqueFunction(function=launch_setup),
         ]
     )

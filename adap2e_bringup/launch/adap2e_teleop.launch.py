@@ -12,34 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from adap2e_description import get_specifications_path_file
+from ament_index_python.packages import get_package_share_directory
+
 from launch import LaunchDescription
 
 from launch.actions import (
-    IncludeLaunchDescription,
     DeclareLaunchArgument,
-    OpaqueFunction,
     GroupAction,
+    IncludeLaunchDescription,
+    OpaqueFunction,
 )
 
-from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import SetParameter
 
-from ament_index_python.packages import get_package_share_directory
-from adap2e_description import get_specifications_path_file
+import romea_common_meta_bringup.ros_launch as common
+import romea_joystick_meta_bringup.ros_launch as joystick
+# import romea_teleop_meta_bringup.launch as teleop
 
 
 def launch_setup(context, *args, **kwargs):
 
-    mode = LaunchConfiguration("mode").perform(context)
-    robot_model = LaunchConfiguration("robot_model").perform(context)
-    joystick_topic = LaunchConfiguration("joystick_topic").perform(context)
-
+    mode = common.get_mode(context)
+    robot_model = common.get_robot_model(context)
+    joystick_topic = joystick.get_joystick_topic(context)
+    joystick_configuration_file_path = joystick.get_joystick_configuration_file_path(context)
+    # teleop_configuration_file_path = teleop.get_teleop_configuration_file_path(context)
     mobile_base_configuration_file_path = get_specifications_path_file(robot_model)
-
-    joystick_configuration_file_path = LaunchConfiguration(
-        "joystick_configuration_file_path"
-    ).perform(context)
 
     teleop_configuration_file_path = LaunchConfiguration(
         "teleop_configuration_file_path"
@@ -47,12 +48,13 @@ def launch_setup(context, *args, **kwargs):
 
     teleop = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            get_package_share_directory("romea_mobile_base_teleop") + "/launch/teleop.launch.py"
+            get_package_share_directory("romea_mobile_base_teleop")
+            + "/launch/teleop.launch.py"
         ),
         launch_arguments={
-            "mobile_base_configuration_file_path": mobile_base_configuration_file_path,
             "joystick_configuration_file_path": joystick_configuration_file_path,
             "teleop_configuration_file_path": teleop_configuration_file_path,
+            "mobile_base_configuration_file_path": mobile_base_configuration_file_path,
             "joystick_topic": joystick_topic,
         }.items(),
     )
@@ -75,10 +77,10 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            DeclareLaunchArgument("mode"),
-            DeclareLaunchArgument("robot_model"),
-            DeclareLaunchArgument("joystick_configuration_file_path"),
-            DeclareLaunchArgument("joystick_topic"),
+            common.declare_mode(),
+            common.declare_robot_model(["fat", "slim"]),
+            joystick.declare_joystick_topic(),
+            joystick.declare_joystick_configuration_file_path(),
             DeclareLaunchArgument(
                 "teleop_configuration_file_path",
                 default_value=default_teleop_configuration_file_path

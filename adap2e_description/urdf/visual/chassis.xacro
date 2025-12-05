@@ -5,7 +5,8 @@
         <visual>
             <origin xyz="${-body_reference_x} 0 ${chassis_height}" rpy="0 0 ${M_PI/2.0}" />
             <geometry>
-                <mesh filename="package://adap2e_description/meshes/framev3_05.dae" />
+                <!-- <mesh filename="package://adap2e_description/meshes/framev3_05.dae" /> -->
+                <mesh filename="file://$(find adap2e_description)/meshes/framev3_05.dae" />
             </geometry>
             <material name="grey">
                 <color rgba="0.6 0.6 0.6 1" />
