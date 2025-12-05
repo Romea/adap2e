@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <robot name="adap2e_fat" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:arg name="prefix" default="adap2e" />
+  <xacro:arg name="prefix" default="adap2e_" />
   <xacro:arg name="mode" default="simulation" />
   <xacro:arg name="base_name" default="base" />
   <xacro:arg name="controller_manager_config_yaml_file" default="" />
@@ -9,8 +9,9 @@
   <xacro:arg name="ros_prefix" default="/adap2e/" />
 
   <xacro:include filename="$(find adap2e_description)/urdf/adap2e.xacro" />
+
   <xacro:adap2e
-    model="slim"
+    model="one"
     mode="$(arg mode)"
     prefix="$(arg prefix)" />
 
