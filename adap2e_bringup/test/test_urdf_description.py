@@ -22,6 +22,24 @@ from ament_index_python.packages import get_package_share_directory
 
 def urdf_xml(mode, model):
 
+    exe = get_package_prefix("adap2e_bringup") + "/lib/adap2e_bringup/generate_urdf_description.py"
+
+    return ET.fromstring(
+        subprocess.check_output(
+            [
+                exe,
+                "mode:" + mode,
+                "robot_model:" + model,
+                "base_name:base",
+                "robot_namespace:robot",
+            ],
+            encoding="utf-8",
+        )
+    )
+
+
+def ros2_control_xml(mode, model):
+
     exe = (
         get_package_prefix("adap2e_bringup")
         + "/lib/adap2e_bringup/generate_ros2_control_description.py"
@@ -41,11 +59,6 @@ def urdf_xml(mode, model):
     )
 
 
-def ros2_control_urdf_xml(mode, model):
-    urdf_xml(mode, model)
-    return ET.parse("/tmp/robot_base_ros2_control.urdf")
-
-
 def test_footprint_link_name():
     assert urdf_xml("live", "one").find("link").get("name") == "robot_base_footprint"
 
@@ -53,18 +66,18 @@ def test_footprint_link_name():
 def test_hardware_plugin_name():
 
     assert (
-        ros2_control_urdf_xml("live", "two").find("ros2_control/hardware/plugin").text
+        ros2_control_xml("live", "two").find("ros2_control/hardware/plugin").text
         == "adap2e_hardware/Adap2eHardware"
     )
 
     assert (
-        ros2_control_urdf_xml("simulation", "one").find("ros2_control/hardware/plugin").text
+        ros2_control_xml("simulation", "one").find("ros2_control/hardware/plugin").text
         == "romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD"
     )
 
 
 def test_controller_filename_name():
     assert (
-        urdf_xml("simulation", "two").find("gazebo/plugin/controller_manager_config_file").text
+        urdf_xml("simulation", "two").find("gazebo/plugin/parameters").text
         == get_package_share_directory("adap2e_bringup") + "/config/controller_manager.yaml"
     )

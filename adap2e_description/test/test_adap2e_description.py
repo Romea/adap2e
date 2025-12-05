@@ -22,7 +22,7 @@ def urdf_xml(mode, model):
     ros_prefix = "/robot/"
     base_name = "base"
     controller_conf_yaml_file = mode + "_" + model + "_controller.yaml"
-
+  
     return ET.fromstring(
         generate_urdf_description(
             prefix, mode, base_name, model, controller_conf_yaml_file, ros_prefix
@@ -33,7 +33,7 @@ def urdf_xml(mode, model):
 def ros2_control_xml(mode, model):
     prefix = "robot_"
     base_name = "base"
-
+    
     return ET.fromstring(
         generate_ros2_control_description(
             prefix, mode, base_name, model
@@ -42,37 +42,35 @@ def ros2_control_xml(mode, model):
 
 
 def test_footprint_link_name():
+
     assert urdf_xml("live", "one").find("link").get("name") == "robot_base_footprint"
 
 
 def test_controller_filename_name():
 
     assert (
-        urdf_xml("simulation", "slim").find("gazebo/plugin/parameters").text
-        == "simulation_slim_controller.yaml"
+        urdf_xml("simulation", "two").find("gazebo/plugin/parameters").text
+        == "simulation_two_controller.yaml"
     )
 
 
 def test_ros_namespace():
 
     assert (
-        urdf_xml("simulation", "slim").find("gazebo/plugin/ros/namespace").text
+        urdf_xml("simulation", "one").find("gazebo/plugin/ros/namespace").text
         == "/adap2e/base"
     )
 
 
 def test_hardware_plugin_name():
 
-    urdf_xml("live", "two")
-    ros2_control_urdf_xml = ET.parse("/tmp/robot_base_ros2_control.urdf")
-
+    ros2_control_urdf_xml = ros2_control_xml("live", "two")
     assert (
         ros2_control_urdf_xml.find("ros2_control/hardware/plugin").text
         == "adap2e_hardware/Adap2eHardware"
     )
 
-    urdf_xml("simulation", "one")
-    ros2_control_urdf_xml = ET.parse("/tmp/robot_base_ros2_control.urdf")
+    ros2_control_urdf_xml = ros2_control_xml("simulation", "one")
 
     assert (
         ros2_control_urdf_xml.find("ros2_control/hardware/plugin").text
@@ -83,6 +81,6 @@ def test_hardware_plugin_name():
 def test_controller_filename_name():
 
     assert (
-        urdf_xml("simulation", "two").find("gazebo/plugin/controller_manager_config_file").text
+        urdf_xml("simulation", "two").find("gazebo/plugin/parameters").text
         == "simulation_two_controller.yaml"
     )

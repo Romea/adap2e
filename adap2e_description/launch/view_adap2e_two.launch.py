@@ -26,7 +26,7 @@ def generate_launch_description():
     )
     urdf_file = (
         get_package_share_directory("adap2e_description")
-        + "/urdf/adap2e_slim.urdf.xacro"
+        + "/urdf/adap2e_two.urdf.xacro"
     )
 
     return LaunchDescription(
