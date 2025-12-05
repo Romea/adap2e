@@ -56,5 +56,5 @@ def test_controller_filename_name():
 
     assert (
         urdf_xml("simulation", "two").find("gazebo/plugin/controller_manager_config_file").text
-        == "simulation_slim_controller.yaml"
+        == "simulation_two_controller.yaml"
     )
