@@ -18,14 +18,12 @@
   <depend>romea_common_meta_bringup</depend>
   <depend>adap2e_description</depend>
 
-gazebo_ros
-
   <exec_depend>romea_mobile_base</exec_depend>
   <exec_depend>romea_simulation</exec_depend>
   <exec_depend>romea_cmd_mux</exec_depend>
 
-  <!-- <exec_depend condition="$ROS_DISTRO == 'jazzy'">ros-gz</exec_depend> -->
-  <!-- <exec_depend condition="$ROS_DISTRO == 'humble'">gazebo_plugins</exec_depend> -->
+  <exec_depend condition="$ROS_DISTRO == 'jazzy'">ros_gz</exec_depend>
+  <exec_depend condition="$ROS_DISTRO == 'humble'">gazebo_plugins</exec_depend>
 
   <!-- <exec_depend>gazebo_plugins</exec_depend> -->
   <exec_depend>joint_state_publisher_gui</exec_depend>
