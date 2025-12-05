@@ -30,12 +30,12 @@ def urdf_xml(mode, model):
 
 
 def test_footprint_link_name():
-    assert urdf_xml("live", "slim").find("link").get("name") == "robot_base_footprint"
+    assert urdf_xml("live", "one").find("link").get("name") == "robot_base_footprint"
 
 
 def test_hardware_plugin_name():
 
-    urdf_xml("live", "fat")
+    urdf_xml("live", "two")
     ros2_control_urdf_xml = ET.parse("/tmp/robot_base_ros2_control.urdf")
 
     assert (
@@ -43,7 +43,7 @@ def test_hardware_plugin_name():
         == "adap2e_hardware/Adap2eHardware"
     )
 
-    urdf_xml("simulation", "slim")
+    urdf_xml("simulation", "one")
     ros2_control_urdf_xml = ET.parse("/tmp/robot_base_ros2_control.urdf")
 
     assert (
@@ -55,6 +55,6 @@ def test_hardware_plugin_name():
 def test_controller_filename_name():
 
     assert (
-        urdf_xml("simulation", "slim").find("gazebo/plugin/controller_manager_config_file").text
+        urdf_xml("simulation", "two").find("gazebo/plugin/controller_manager_config_file").text
         == "simulation_slim_controller.yaml"
     )
