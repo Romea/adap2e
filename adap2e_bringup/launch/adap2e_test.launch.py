@@ -107,7 +107,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             common.declare_mode("simulation"),
-            common.declare_robot_model(["fat", "slim"], "fat"),
+            common.declare_robot_model(["one", "two"], "one"),
             joystick.declare_joystick_model("microsoft_xbox"),
             OpaqueFunction(function=launch_setup),
         ]

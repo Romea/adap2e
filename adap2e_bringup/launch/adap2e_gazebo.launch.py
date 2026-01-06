@@ -135,7 +135,7 @@ def generate_launch_description():
         [
             common.declare_mode("simulation"),
             common.declare_robot_namespace("adap2e"),
-            common.declare_robot_model(["fat", "slim"], "fat"),
+            common.declare_robot_model(["one", "two"], "one"),
             mobile_base.declare_base_name("base"),
             common.declare_robot_urdf_description(
                 common.generate_robot_urdf_description("adap2e_bringup")

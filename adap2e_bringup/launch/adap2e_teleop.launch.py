@@ -78,7 +78,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             common.declare_mode(),
-            common.declare_robot_model(["fat", "slim"]),
+            common.declare_robot_model(["one", "two"]),
             joystick.declare_joystick_topic(),
             joystick.declare_joystick_configuration_file_path(),
             DeclareLaunchArgument(

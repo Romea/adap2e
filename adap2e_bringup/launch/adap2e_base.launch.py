@@ -129,7 +129,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             common.declare_mode(),
-            common.declare_robot_model(["fat", "slim"]),
+            common.declare_robot_model(["one", "two"]),
             common.declare_robot_namespace(),
             mobile_base.declare_base_name("base"),
             common.declare_robot_urdf_description(
