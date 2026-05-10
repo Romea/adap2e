@@ -3,6 +3,7 @@
 
   <xacro:macro name="adap2e" params="model mode prefix">
 
+    <xacro:include filename="$(find romea_common_description)/urdf/inertia.xacro" />
     <xacro:include filename="$(find romea_mobile_base_description)/urdf/base4WS4WD.chassis.xacro" />
     <xacro:include filename="$(find adap2e_description)/urdf/visual/chassis.xacro" />
     <xacro:include filename="$(find adap2e_description)/urdf/visual/wheels.xacro" />
@@ -123,6 +124,28 @@
       <xacro:rear_left_wheel_visual />
       <xacro:rear_right_wheel_visual />
     </xacro:chassis>
+
+    <link name="${prefix}lift_arm_link">
+      <xacro:box_inertia mass="0.1" lx="0.1" ly="0.1" lz="0.1"/>
+    </link>
+
+    <joint name="${prefix}base_footprint_to_lift_arm_link" type="fixed">
+        <origin xyz="-0.8 0.0 0.7" rpy="0.0 0.0 0.0" />
+        <parent link="${prefix}${base_footprint_link}" />
+        <child link="${prefix}lift_arm_link" />
+    </joint>
+
+    <link name="${prefix}implement_link">
+      <xacro:box_inertia mass="0.1" lx="0.1" ly="0.1" lz="0.1"/>
+    </link>
+
+    <joint name="${prefix}lift_arm_link_to_implement_link" type="prismatic">
+        <origin rpy="0 ${pi/2} 0" xyz="0 0 0" />
+        <parent link="${prefix}lift_arm_link" />
+        <child link="${prefix}implement_link" />
+        <dynamics damping="2000.0" friction="40." />
+        <limit effort="10000.0" lower="0" upper="1.0" velocity="0.1" />
+    </joint>
 
   </xacro:macro>
 

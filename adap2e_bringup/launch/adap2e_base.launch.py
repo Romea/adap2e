@@ -71,7 +71,7 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    controller = IncludeLaunchDescription(
+    base_controller = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             get_package_share_directory("romea_mobile_base_controllers")
             + "/launch/mobile_base_controller.launch.py"
@@ -84,7 +84,21 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
 
-    cmd_mux = Node(
+    lift_arm_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        exec_name="lift_arm_controller_spawner",
+        arguments=[
+            "lift_arm_controller",
+            "--param-file",
+            "/home/jean.laneurit/dev/romea_ros2_jazzy/src/interfaces/vehicles/adap2e/adap2e_bringup/config/lift_arm_controller.yaml",
+            "--controller-manager",
+            "controller_manager",
+        ],
+        output="screen",
+    )
+
+    base_cmd_mux = Node(
         package="romea_cmd_mux",
         executable="cmd_mux_node",
         name="cmd_mux",
@@ -117,8 +131,9 @@ def launch_setup(context, *args, **kwargs):
                 # can_receiver,
                 ros2_control_description_node,
                 controller_manager,
-                controller,
-                cmd_mux,
+                base_controller,
+                lift_arm_controller,
+                base_cmd_mux,
             ]
         )
     ]

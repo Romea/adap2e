@@ -7,3 +7,6 @@
 
     mobile_base_controller:
       type: romea_mobile_base_controllers/MobileBaseController4WS4WD
+
+    lift_arm_controller:
+      type: position_controllers/JointGroupPositionController

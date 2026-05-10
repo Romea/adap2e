@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    joints:
+      # - $(var tf_prefix)hitch_joint
+      - adap2e_lift_arm_link_to_implement_link
