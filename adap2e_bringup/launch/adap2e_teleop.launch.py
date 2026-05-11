@@ -59,11 +59,23 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
 
+    implement = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            get_package_share_directory("romea_implement_teleop")
+            + "/launch/teleop.launch.py"
+        ),
+        launch_arguments={
+            "joystick_configuration_file_path": joystick_configuration_file_path,
+            "joystick_topic": joystick_topic,
+        }.items(),
+    )
+
     return [
         GroupAction(
             actions=[
                 SetParameter(name="use_sim_time", value=(mode != "live")),
                 teleop,
+                implement,
             ]
         )
     ]
