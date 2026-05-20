@@ -91,7 +91,7 @@ def launch_setup(context, *args, **kwargs):
         arguments=[
             "lift_arm_controller",
             "--param-file",
-            "/home/jean.laneurit/dev/romea_ros2_jazzy/src/interfaces/vehicles/adap2e/adap2e_bringup/config/lift_arm_controller.yaml",
+            get_package_share_directory("adap2e_bringup") + "/config/lift_arm_controller.yaml",
             "--controller-manager",
             "controller_manager",
         ],
