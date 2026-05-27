@@ -90,10 +90,17 @@ def launch_setup(context, *args, **kwargs):
         exec_name="lift_arm_controller_spawner",
         arguments=[
             "lift_arm_controller",
-            "--param-file",
-            get_package_share_directory("adap2e_bringup") + "/config/lift_arm_controller.yaml",
+            # "--param-file",
+            # get_package_share_directory("adap2e_bringup") + "/config/lift_arm_controller.yaml",
             "--controller-manager",
             "controller_manager",
+        ],
+        parameters=[
+            {
+                "joints": [
+                    utils.robot_urdf_prefix(robot_namespace) + "lift_arm_link_to_implement_link"
+                ]
+            }
         ],
         output="screen",
     )
