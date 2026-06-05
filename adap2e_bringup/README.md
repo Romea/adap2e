@@ -1,78 +1,196 @@
-# adap2e_bringup #
+# adap2e_bringup
 
-## 1 Launch files ##
+## 1) Overview
 
-The adap2e_bringup package provides a suite of launch files enabling both manual and automated control of  Adap2e robots, either in real-time or in simulation. Two robot models are supported (see figure below): the Adap2e Slim, and the Alpo Fat, which differ only in track width. Additionally, both models can be equipped with a robotic arm mounted at the front.
+`adap2e_bringup` connects the Adap2e description, hardware, simulation and teleoperation packages to the generic `romea_mobile_base_meta_bringup` workflow.
 
-![Controller mapping](doc/Adap2E_1_et_2.jpg)
+It provides:
 
-### 1.1 Base launch file ###
+* robot-specific generation functions for configuration, URDF and `ros2_control` descriptions;
+* launch files for live control, Gazebo simulation and teleoperation;
+* controller manager and mobile base controller parameter files;
 
-The **adap2e_base.launch.py** file, located in the launch directory, is responsible for starting the controller manager, the robot's controller, and a command multiplexer. The configuration of the controller manager and the robot controller are defined in the **controller_manager.yaml** and **mobile_base_controller.yaml** files, respectively, which are located in the config directory. By default, the **MobileBaseController4WS4WD** controller, provided by the **romea_mobile_base_controller** package, is used to operate Adap2e robots.
+The supported Adap2e variants are `one` and `two`. Both variants use the `4WS4WD` mobile base architecture.
 
+![Adap2e variants](doc/Adap2E_1_et_2.jpg)
 
+## 2) Generated artifacts
 
-You can launch these nodes via command line:
+The Python module `adap2e_bringup` delegates most generation work to `adap2e_description` and adds bringup-specific configuration such as the controller manager parameter file.
 
-```console
-ros2 launch adap2e_bringup adap2e_base_launch.py mode:=simulation robot_namespace:=adap2e robot_model:=fat base_name:=base
+It provides the functions expected by `romea_mobile_base_meta_bringup`:
+
+| Function | Purpose |
+|---|---|
+| `get_configuration(robot_model)` | returns the compact mobile base configuration for `one` or `two` |
+| `generate_configuration_file(robot_model, extended)` | generates the mobile base configuration file |
+| `generate_urdf_description(prefix, mode, base_name, robot_model, ros_prefix)` | generates the Adap2e URDF description |
+| `generate_ros2_control_description(prefix, mode, base_name, robot_model)` | generates the Adap2e `ros2_control` description |
+
+The executable scripts in `scripts/` expose these functions from the command line:
+
+The configuration generator writes the compact `4WS4WD` mobile base configuration used by controllers, teleoperation and launch files. It is derived from the selected Adap2e robot configuration in `adap2e_description/config/`.
+
+```bash
+ros2 run adap2e_bringup generate_configuration_file.py \
+  robot_model:one \
+  extended:false
 ```
 
-where:
-- ***mode*** (choices: ***simulation*** or ***live***) defines the demonstration mode.  
-- ***robot_model*** (choices: ***fat*** or ***slim***) defines the robot model.
-- ***robot_namespace*** (default: ***alpo***) sets the main ROS namespace where all Adap2e nodes are launched. 
-- ***base_name*** (default: ***base***) sets the ROS sub-namespace in which controller nodes are launched
-`
+The URDF generator writes the Adap2e robot description for the selected variant. It contains the `4WS4WD` link and joint structure, inertial data, collision geometry, visual meshes and the simulator plugin block when a simulation mode is selected.
 
-### 1.2 Teleop launch file ###
-
-The **adap2e_teleop.launch.py** file, located in the launch directory, is used to execute the **two_axle_steering_teleop_node** provided by the **romea_teleop_drivers** package to control the motion of the Adap2e robot. You can launch the teleop node via the command line:
-
-```console
-ros2 launch adap2e_bringup adap2e_teleop.launch.py robot_model:=fat joystick_type:=xbox joystick_driver:=joy joystic_topic:=joystick/joy teleop_configuration_file_path:=/path_to_file/teleop.yaml
+```bash
+ros2 run adap2e_bringup generate_urdf_description.py \
+  robot_namespace:adap2e \
+  base_name:base \
+  robot_model:one \
+  mode:simulation_gazebo
 ```
 
-where:
+The `ros2_control` generator writes the hardware description consumed by `controller_manager`. It declares the hardware plugin selected by the mode, the geometric hardware parameters and the command/state interfaces for all steering and spinning joints.
 
-- ***robot_model*** (choices: ***fat*** or ***slim***) specifies of the robot model
-- ***joystick_type*** (choices: ***xbox*** or ***dualshock4***) specifies the type of joystick
-- ***joystick_driver*** (choices: ***joy*** or ***ds4_driver***, default: ***joy***) defines the ROS2 driver package used to control the joystick
-- ***joystic_topic*** (default: **joystick/joy**) defines the name of the output topic of the  joystick node 
-- ***teleop_configuration_file_path*** specifies the absolute path of teleoperation configuration file 
-
-The default teleop configuration file can be found in the config directory of the **adap2e_description** package, and the joystick mapping can be found in the config directory of the **romea_teleop_description** package. To move the robot, hold down either the slow mode or turbo mode button. Use the control sticks to adjust the front and rear steering angles, and the triggers to control the robot's speed.
-
-![Controller mapping](doc/teleop.jpg)
-
-## 2.3 Test launch file
-
-The **adap2e_test.launch.py** file, located in the launch directory, is used to test the robot control pipeline in both live and simulation contexts. The following nodes are launched: controller manager, robot controller, joystick node, and teleop node using an Xbox joystick.
-
-```console
-ros2 launch adap2_bringup adap2e_test.launch.py robot_model:=fat mode:=simulation
+```bash
+ros2 run adap2e_bringup generate_ros2_control_description.py \
+  robot_namespace:adap2e \
+  base_name:base \
+  robot_model:one \
+  mode:live
 ```
 
-where:
+## 3) Launch files
 
-- ***mode*** (choices: ***simulation*** or ***live***) defines the demonstration mode,   
-- ***robot_model*** (choices: ***fat*** or ***slim***) defines the model of the robot
+### 3.1) Base launch
 
-Below, you can see the ROS pipeline when selecting the simulation mode with the fat adap2e. In live mode, the pipeline remains the same, except that the **gazebo_ros2_controller_manager** is replaced by a standard **ros2_controller_manager**.
+`launch/adap2e_base.launch.py` starts the Adap2e mobile base control stack.
 
-![Controller mapping](doc/test_pipeline.png)
+It:
 
-# 2 URDF description:
+* receives the generated robot URDF and `ros2_control` description from the meta-bringup launch context;
+* starts `controller_manager/ros2_control_node` in non-Gazebo modes;
+* loads `joint_state_broadcaster`;
+* loads `mobile_base_controller` using `romea_mobile_base_controllers/MobileBaseController4WS4WD`;
+* starts `romea_cmd_mux` and remaps its output to `controller/cmd_two_axle_steering`.
 
-You can generate the URDF description of the Adap2e robot using the **urdf_description.py** executable located in the scripts directory.
+Main launch arguments are:
 
-```console
-ros2 run adap2e_bringup urdf_description.py robot_model:fat mode:simulation base_name:base robot_namespace:adap2e > adap2e.urdf
+| Argument | Description |
+|---|---|
+| `mode` | execution mode, such as `live`, `simulation_gazebo` or `simulation_gazebo_classic` |
+| `robot_model` | Adap2e variant, `one` or `two` |
+| `robot_namespace` | namespace of the robot |
+| `base_name` | namespace of the mobile base, usually `base` |
+
+### 3.2) Teleoperation launch
+
+`launch/adap2e_teleop.launch.py` starts the mobile base teleoperation stack through `romea_mobile_base_teleop`.
+
+It uses:
+
+* the selected Adap2e robot configuration from `adap2e_description/config/`;
+* the joystick configuration file, usually selected from the `config/` directory of `romea_joystick_utils` according to the joystick type;
+* the teleoperation configuration from `adap2e_description/config/teleop.yaml` by default.
+
+The teleoperation node publishes `romea_mobile_base_msgs/TwoAxleSteeringCommand`, consistent with the `4WS4WD` controller command type.
+
+To move the robot, the operator must hold either the slow mode or turbo mode button. The joystick axes then command the front and rear steering angles and the longitudinal speed.
+
+Main launch arguments are:
+
+| Argument | Description |
+|---|---|
+| `mode` | execution mode, used to configure simulation time |
+| `robot_model` | Adap2e variant, `one` or `two` |
+| `joystick_topic` | joystick `sensor_msgs/msg/Joy` topic |
+| `joystick_configuration_file_path` | joystick configuration file, usually selected from `romea_joystick_utils/config/` |
+| `teleop_configuration_file_path` | teleoperation configuration file, defaulting to `adap2e_description/config/teleop.yaml` |
+
+![Adap2e teleoperation mapping](doc/teleop.jpg)
+
+### 3.3) Gazebo launch
+
+`launch/adap2e_gazebo.launch.py` starts a Gazebo or Gazebo Classic simulation and spawns the Adap2e entity from the generated URDF.
+
+It supports:
+
+* `simulation_gazebo`, using `ros_gz_sim` and `gz_ros2_control`;
+* `simulation_gazebo_classic`, using `gazebo_ros` and `gazebo_ros2_control`.
+
+The `ros2_control` hardware plugin used in simulation is selected by `adap2e_description` from the generated `mode`.
+
+Main launch arguments are:
+
+| Argument | Description |
+|---|---|
+| `mode` | simulation mode, usually `simulation_gazebo` or `simulation_gazebo_classic` |
+| `robot_model` | Adap2e variant, `one` or `two` |
+| `robot_namespace` | namespace of the robot and simulation entity |
+| `base_name` | namespace of the mobile base, usually `base` |
+
+### 3.4) Implement teleoperation launch
+
+`launch/adap2e_implement_teleop.launch.py` starts the joystick teleoperation node used for an implement or arm mounted on the Adap2e platform.
+
+It uses the joystick type, joystick driver and joystick topic to build the implement teleoperation mapping.
+
+### 3.5) Test launch
+
+`launch/adap2e_test.launch.py` starts a compact test setup with:
+
+* the Adap2e simulation when the selected mode contains `simulation`;
+* the Adap2e base launch;
+* the Adap2e teleoperation launch;
+* a joystick node using the selected joystick model.
+
+In simulation mode, the controller manager is provided by the Gazebo integration. In live mode, the base launch starts the standard `controller_manager/ros2_control_node`.
+
+Main launch arguments are:
+
+| Argument | Description |
+|---|---|
+| `mode` | execution mode, usually `simulation_gazebo` for this test setup |
+| `robot_model` | Adap2e variant, `one` or `two` |
+| `joystick_model` | joystick model used to select the default joystick configuration, such as `microsoft_xbox` or `sony_dualshock4` |
+
+The following diagram gives an overview of the control pipeline started by this test launch file.
+
+![Adap2e test pipeline](doc/test_pipeline.png)
+
+## 4) Configuration files
+
+The `config/` directory contains:
+
+| File | Purpose |
+|---|---|
+| `controller_manager.yaml` | declares `joint_state_broadcaster` and `MobileBaseController4WS4WD` |
+| `mobile_base_controller.yaml` | provides common runtime parameters for the mobile base controller |
+
+The robot geometry, inertia, joint names and teleoperation defaults are stored in `adap2e_description/config/`.
+
+## 5) Relation with the meta-bringup workflow
+
+`adap2e_bringup` is the robot-specific extension used when a mobile base meta-description selects:
+
+```yaml
+configuration:
+  manufacturer: inrae
+  model: adap2e
+  version: one
 ```
 
-where:
+or:
 
-- ***base_name***  defines the name of robot mobile base  
-- ***mode*** (choices: ***simulation*** or ***live***) defines the demonstration mode,  
-- ***robot_model*** (choices: ***fat*** or ***slim***) defines the model of the robot,
-- **robot_namespace** is the namespace in which the ROS2 nodes are launched. It is also used as a prefix for link and joints of the mobile base. 
+```yaml
+configuration:
+  manufacturer: inrae
+  model: adap2e
+  version: two
+```
+
+In that workflow:
+
+* `romea_mobile_base_meta_bringup` reads the mobile base meta-description;
+* `adap2e_bringup` generates Adap2e-specific configuration, URDF, `ros2_control` and launch artifacts;
+* `adap2e_description` provides the concrete robot model;
+* `adap2e_hardware` is used in `live` mode;
+* `romea_mobile_base_gazebo` or `romea_mobile_base_gazebo_classic` is used in Gazebo simulation modes;
+* `romea_mobile_base_teleop` starts the matching two-axle steering teleoperation node.
