@@ -1,38 +1,36 @@
-# adap2e #
+# adap2e
 
-This project contains several ROS2 packages for working with Adap2e robots, both in real-world applications and simulations. For more detailed information, please refer to the README files of each individual package.
+## Overview
 
-## **Usage**
+`adap2e` groups the ROS2 packages that describe, launch and control the Adap2e mobile bases in live and simulation modes.
 
-1. create a ROS workspace
-2. cd worskpace
-3. mkdir src
-4. wget https://raw.githubusercontent.com/Romea/adap2e/refs/heads/main/adap2e_public.repos
-5. vcs import src < adap2e_public.repos
-6. colcon build
-7. see bringup package to launch Adap2e robot
+This repository-level README gives a map of the stack. Detailed information about each package can be found in the corresponding package README.
 
-## **Contributing**
+## Packages
 
-If you'd like to contribute to this project, here are some guidelines:
+| Package | Role |
+| --- | --- |
+| `adap2e` | Metapackage that groups the Adap2e ROS2 packages. |
+| `adap2e_description` | Robot-specific description layer for the Adap2e variants, including configuration files, URDF/Xacro descriptions, meshes and ros2_control descriptions. |
+| `adap2e_bringup` | Main integration entry point for generating Adap2e configuration files, URDF descriptions, ros2_control descriptions and launch files. |
+| `adap2e_hardware` | Live `ros2_control` hardware plugin for Adap2e mobile bases, built on the generic `4WS4WD` hardware abstraction. |
 
-1. Fork the repository.
-2. Create a new branch for your changes.
-3. Make your changes.
-4. Write tests to cover your changes.
-5. Run the tests to ensure they pass.
-6. Commit your changes.
-7. Push your changes to your forked repository.
-8. Submit a pull request.
+## Usage
 
-## **License**
+In most cases, start with `adap2e_bringup`. It is the user-facing entry point of the stack and the package used by `romea_mobile_base_meta_bringup` when an Adap2e model is selected from a mobile base meta-description.
 
-This project is released under the Apache License 2.0. See the LICENSE file for details.
+The Adap2e stack is a robot-specific specialization of `romea_mobile_base`. The mobile base architecture is `4WS4WD`; `adap2e_description` provides the concrete geometry and generated descriptions, `adap2e_hardware` provides the live hardware implementation, and `adap2e_bringup` connects these pieces to the generic mobile base launch workflow.
 
-## **Authors**
+The supported Adap2e variants are `one` and `two`.
 
- Adap2e project was developed by **Jean Laneurit** in the context of ADAP2E ANR project.
+## License
 
-## **Contact**
+This project is released under the Apache License 2.0. See the `LICENSE` file for details.
 
-If you have any questions or comments about Adap2e project, please contact **[Jean Laneurit](mailto:jean.laneurit@inrae.fr)** 
+## Authors
+
+The `adap2e` project was developed by Jean Laneurit in the context of the ADAP2E ANR project.
+
+## Contact
+
+For questions or comments about this project, please contact [Jean Laneurit](mailto:jean.laneurit@inrae.fr).
