@@ -59,7 +59,7 @@ Depending on the selected mode, the `ros2_control` description selects:
 | `live` | `adap2e_hardware/Adap2eHardware` |
 | `simulation_gazebo` | `romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD` |
 | `simulation_gazebo_classic` | `romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD` |
-| `simulation_4dv`, `simulation_isaac` | `romea_mobile_base_simulation/GenericSimulationSystemInterface4WS4WD` |
+| `simulation_4dv`, `simulation_isaac` | `romea_mobile_base_simulation/GenericSimulationSystemInterface` |
 
 ## 4) Python API
 

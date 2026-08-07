@@ -45,14 +45,12 @@
       value="${props['wheels_speed_control']['command']['maximal_speed']}" />
 
 
-    <!-- simulation plugins -->
-    <xacro:if value="${'simulation' in mode}">
-      <xacro:if value="${'gazebo' in  mode}">
-        <xacro:property
-          name="simulation_hardware_plugin"
-          value="romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD" />
+    <xacro:if value="${mode == 'simulation_gazebo'}">
+      <xacro:property
+        name="hardware_plugin"
+        value="romea_mobile_base_gazebo/GazeboSystemInterface" />
 
-        <ros2_control name="${prefix}lift_arm" type="system">
+      <ros2_control name="${prefix}lift_arm" type="system">
           <hardware>
               <plugin>gz_ros2_control/GazeboSimSystem</plugin>
           </hardware>
@@ -62,7 +60,6 @@
               <param name="pos_kd">0</param>
               <param name="pos_max_integral_error">10000</param>
 
-              <!-- <command_interface name="effort" /> -->
               <command_interface name="position" />
               <command_interface name="position_pid" />
               <state_interface name="position" />
@@ -70,23 +67,32 @@
               <state_interface name="effort" />
           </joint>
         </ros2_control>
+        
+    </xacro:if>
 
-      </xacro:if>
+    <xacro:if value="${mode == 'simulation_gazebo_classic'}">
+      <xacro:property
+        name="hardware_plugin"
+        value="romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD" />
+    </xacro:if>
 
-      <xacro:if value="${'4dv' in  mode or 'isaac' in mode}">
-        <xacro:property
-          name="simulation_hardware_plugin"
-          value="romea_mobile_base_simulation/GenericSimulationSystemInterface4WS4WD" />
-      </xacro:if>
+   
+    <xacro:if value="${'4dv' in mode or 'isaac' in mode}">
+      <xacro:property
+        name="hardware_plugin"
+        value="romea_mobile_base_simulation/GenericSimulationSystemInterface" />
     </xacro:if>
 
     <xacro:if value="${mode ==  'live'}">
       <xacro:property
-        name="live_hardware_plugin"
+        name="hardware_plugin"
         value="adap2e_hardware/Adap2eHardware" />
     </xacro:if>
 
-    <xacro:base_control mode="${mode}" base_name="${base_name}" />
+    <xacro:base_control
+      mode="${mode}"
+      base_name="${base_name}"
+      hardware_plugin="${hardware_plugin}" />
 
   </xacro:macro>
 

@@ -70,11 +70,25 @@ def test_hardware_plugin_name():
         == "adap2e_hardware/Adap2eHardware"
     )
 
-    ros2_control_urdf_xml = ros2_control_xml("simulation", "one")
+    ros2_control_urdf_xml = ros2_control_xml("simulation_gazebo", "one")
+
+    assert (
+        ros2_control_urdf_xml.find("ros2_control/hardware/plugin").text
+        == "romea_mobile_base_gazebo/GazeboSystemInterface"
+    )
+
+    ros2_control_urdf_xml = ros2_control_xml("simulation_gazebo_classic", "one")
 
     assert (
         ros2_control_urdf_xml.find("ros2_control/hardware/plugin").text
         == "romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD"
+    )
+
+    ros2_control_urdf_xml = ros2_control_xml("isaac", "one")
+
+    assert (
+        ros2_control_urdf_xml.find("ros2_control/hardware/plugin").text
+        == "romea_mobile_base_simulation/GenericSimulationSystemInterface"
     )
 
 

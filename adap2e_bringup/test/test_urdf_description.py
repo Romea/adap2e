@@ -71,8 +71,18 @@ def test_hardware_plugin_name():
     )
 
     assert (
-        ros2_control_xml("simulation", "one").find("ros2_control/hardware/plugin").text
+        ros2_control_xml("simulation_gazebo", "one").find("ros2_control/hardware/plugin").text
+        == "romea_mobile_base_gazebo/GazeboSystemInterface"
+    )
+
+    assert (
+        ros2_control_xml("simulation_gazebo_classic", "one").find("ros2_control/hardware/plugin").text
         == "romea_mobile_base_gazebo/GazeboSystemInterface4WS4WD"
+    )
+
+    assert (
+        ros2_control_xml("isaac", "one").find("ros2_control/hardware/plugin").text
+        == "romea_mobile_base_simulation/GenericSimulationSystemInterface"
     )
 
 
