@@ -114,7 +114,9 @@
     <xacro:property name="rear_wheel_steering_link_xz" value="0.05" />
 
     <xacro:chassis>
-      <xacro:chassis_visual />
+      <chassis_visuals>
+        <xacro:chassis_visual />
+      </chassis_visuals>
       <xacro:front_left_arm_visual />
       <xacro:front_right_arm_visual />
       <xacro:rear_left_arm_visual />
