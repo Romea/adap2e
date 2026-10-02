@@ -3,71 +3,15 @@
 
   <xacro:macro name="adap2e_ros2_control" params="model mode prefix base_name">
 
-    <xacro:include
-      filename="$(find romea_mobile_base_description)/ros2_control/base4WS4WD.ros2_control.xacro" />
+    <xacro:include filename="$(find romea_mobile_base_description)/ros2_control/base4WS4WD.ros2_control.xacro" />
 
     <xacro:property name="conf" value="$(find adap2e_description)/config/adap2e_${model}.yaml" />
-    <xacro:property name="props" value="${xacro.load_yaml(conf)}" />
-
-
-    <!-- Joint names -->
-    <xacro:property name="front_left_wheel_steering_joint"
-      value="${props['joints']['front_left_wheel_steering_joint_name']}" />
-    <xacro:property name="front_right_wheel_steering_joint"
-      value="${props['joints']['front_right_wheel_steering_joint_name']}" />
-    <xacro:property name="rear_left_wheel_steering_joint"
-      value="${props['joints']['rear_left_wheel_steering_joint_name']}" />
-    <xacro:property name="rear_right_wheel_steering_joint"
-      value="${props['joints']['rear_right_wheel_steering_joint_name']}" />
-    <xacro:property name="front_left_wheel_spinning_joint"
-      value="${props['joints']['front_left_wheel_spinning_joint_name']}" />
-    <xacro:property name="front_right_wheel_spinning_joint"
-      value="${props['joints']['front_right_wheel_spinning_joint_name']}" />
-    <xacro:property name="rear_left_wheel_spinning_joint"
-      value="${props['joints']['rear_left_wheel_spinning_joint_name']}" />
-    <xacro:property name="rear_right_wheel_spinning_joint"
-      value="${props['joints']['rear_right_wheel_spinning_joint_name']}" />
-
-    <!-- Geometry -->
-    <xacro:property name="wheelbase"
-      value="${props['geometry']['axles_distance']}" />
-    <xacro:property name="front_track"
-      value="${props['geometry']['front_axle']['wheels_distance']}" />
-    <xacro:property name="rear_track"
-      value="${props['geometry']['rear_axle']['wheels_distance']}" />
-    <xacro:property name="front_wheel_radius"
-      value="${props['geometry']['front_axle']['wheels']['radius']}" />
-    <xacro:property name="rear_wheel_radius"
-      value="${props['geometry']['rear_axle']['wheels']['radius']}" />
-    <xacro:property name="maximal_wheel_steering_angle"
-      value="${props['wheels_steering_control']['command']['maximal_angle']}" />
-    <xacro:property name="maximal_wheel_speed"
-      value="${props['wheels_speed_control']['command']['maximal_speed']}" />
-
+    <xacro:include filename="$(find adap2e_description)/urdf/adap2e_properties.xacro" />
 
     <xacro:if value="${mode == 'simulation_gazebo'}">
       <xacro:property
         name="hardware_plugin"
-        value="romea_mobile_base_gazebo/GazeboSystemInterface" />
-
-      <ros2_control name="${prefix}lift_arm" type="system">
-          <hardware>
-              <plugin>gz_ros2_control/GazeboSimSystem</plugin>
-          </hardware>
-          <joint name="${prefix}lift_arm_link_to_implement_link">
-              <param name="pos_kp">100000</param>
-              <param name="pos_ki">10.</param>
-              <param name="pos_kd">0</param>
-              <param name="pos_max_integral_error">10000</param>
-
-              <command_interface name="position" />
-              <command_interface name="position_pid" />
-              <state_interface name="position" />
-              <state_interface name="velocity" />
-              <state_interface name="effort" />
-          </joint>
-        </ros2_control>
-        
+        value="romea_mobile_base_gazebo/GazeboSystemInterface" />        
     </xacro:if>
 
     <xacro:if value="${mode == 'simulation_gazebo_classic'}">
@@ -88,6 +32,8 @@
         name="hardware_plugin"
         value="adap2e_hardware/Adap2eHardware" />
     </xacro:if>
+
+    <xacro:base_control_model/>
 
     <xacro:base_control
       mode="${mode}"
