@@ -20,7 +20,6 @@ from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PythonExpression
 from launch_ros.actions import Node, SetParameter
-from launch_ros.parameter_descriptions import ParameterFile
 
 import romea_common_meta_bringup.ros_launch as common
 import romea_common_meta_bringup.utils as utils
@@ -85,28 +84,6 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
 
-    lift_arm_controller_yaml = ParameterFile(
-        get_package_share_directory("adap2e_bringup") + "/config/lift_arm_controller.yaml",
-        allow_substs=True,
-    )
-    lift_arm_controller = Node(
-        package="controller_manager",
-        executable="spawner",
-        exec_name="lift_arm_controller_spawner",
-        arguments=[
-            "lift_arm_controller",
-            "--controller-manager",
-            "controller_manager",
-        ],
-        parameters=[
-            lift_arm_controller_yaml,
-            {
-                "tf_prefix": utils.robot_urdf_prefix(robot_namespace),
-            },
-        ],
-        output="screen",
-    )
-
     base_cmd_mux = Node(
         package="romea_cmd_mux",
         executable="cmd_mux_node",
@@ -141,7 +118,6 @@ def launch_setup(context, *args, **kwargs):
                 ros2_control_description_node,
                 controller_manager,
                 base_controller,
-                lift_arm_controller,
                 base_cmd_mux,
             ]
         )
