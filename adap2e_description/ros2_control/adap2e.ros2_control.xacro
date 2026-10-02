@@ -33,8 +33,6 @@
         value="adap2e_hardware/Adap2eHardware" />
     </xacro:if>
 
-    <xacro:base_control_model/>
-
     <xacro:base_control
       mode="${mode}"
       base_name="${base_name}"
