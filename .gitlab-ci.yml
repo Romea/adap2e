@@ -4,4 +4,6 @@ include:
 
 
 variables:
+  ROS_HUMBLE_IMAGE: "osrf/ros:humble-desktop-full-jammy"
+  ROS_JAZZY_IMAGE: "osrf/ros:jazzy-desktop-full-noble"
   PKGS_TO_BUILD_TEST: "adap2e_bringup adap2e_description adap2e_hardware"
